@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRequestForServiceDto } from './dto/create-request_for_service.dto';
 import { UpdateRequestForServiceDto } from './dto/update-request_for_service.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import {
+  RequestForService,
+  RequestForServiceDocument,
+} from './schemas/request_for_service.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class RequestForServiceService {
-  create(createRequestForServiceDto: CreateRequestForServiceDto) {
-    return 'This action adds a new requestForService';
+  constructor(
+    @InjectModel(RequestForService.name)
+    private model: Model<RequestForServiceDocument>,
+  ) {}
+  async create(createRequestForServiceDto: CreateRequestForServiceDto) {
+    return await new this.model({ ...createRequestForServiceDto }).save();
   }
 
-  findAll() {
-    return `This action returns all requestForService`;
+  async findAll() {
+    return await this.model.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} requestForService`;
+  async findOne(id: string) {
+    return await this.model.findOne({ id }).exec();
   }
 
-  update(id: number, updateRequestForServiceDto: UpdateRequestForServiceDto) {
-    return `This action updates a #${id} requestForService`;
+  update(id: string, updateRequestForServiceDto: UpdateRequestForServiceDto) {
+    return this.model.findByIdAndUpdate(id, updateRequestForServiceDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} requestForService`;
+  async remove(id: string) {
+    return await this.model.findByIdAndDelete(id).exec();
   }
 }
