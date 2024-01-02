@@ -11,6 +11,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Token, TokenDocument } from './schemas/token.schema';
 import { Model } from 'mongoose';
 import { User } from '../user/schemas/user.schema';
+import { OTPService } from './otp.service';
+import { Register } from './dto/register.dto';
+import { MailService } from 'src/core/mail/mail.service';
+import { LoginDto } from './dto/login.dto';
 
 const getExpiry = (value: number, unit: dayjs.ManipulateType) =>
   dayjs().add(value, unit).toDate();
@@ -20,6 +24,8 @@ export class AuthService {
     private confige_service: ConfigService,
     private jwt_service: JwtService,
     private user_service: UserService,
+    private opt_service: OTPService,
+    private mail_service: MailService,
     @InjectModel(Token.name) private model: Model<TokenDocument>,
   ) {}
   private async validateUser(login_dto: any) {
@@ -28,22 +34,24 @@ export class AuthService {
     const user = await this.user_service.findBy(email);
     return user;
   }
-  async signIn(login_dto: any) {
+  async signIn(login_dto: LoginDto) {
     const user = await this.validateUser(login_dto);
     if (!user)
       throw new HttpException('user introuvable', HttpStatus.UNAUTHORIZED);
     if (!user.password)
-      throw new HttpException('passe word', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('passeword', HttpStatus.UNAUTHORIZED);
     const isMatch = await argon.verify(user.password, login_dto.password);
 
     if (!isMatch)
       throw new HttpException('password incorrect', HttpStatus.UNAUTHORIZED);
     return await this.generateTokens(user);
   }
-  async signUp(register_dto: any) {
+  async signUp(register_dto: Register) {
     register_dto.password = await argon.hash(register_dto.password);
     const user = await this.user_service.create(register_dto);
-    return await this.generateTokens(user);
+    const { value } = await this.opt_service.create(user, 'is_first_auth');
+    this.mail_service.sigup(user, value);
+    return {};
   }
   async getUserIfRefreshTokenMatches(
     refreshToken: string,
@@ -104,6 +112,7 @@ export class AuthService {
           user: payload,
         })
         .exec();
+
       return {
         accessToken,
         refreshToken: newRefreshToken,
@@ -148,18 +157,24 @@ export class AuthService {
   }
 
   async getJwtAccessToken(payload: User) {
+    const expiresIn =
+      this.confige_service.get('ACCESS_TIME_VALUE') +
+      this.confige_service.get('ACCESS_TIME_UNIT');
     const accessToken = await this.jwt_service.signAsync(payload, {
       secret: this.confige_service.get('JWT_ACCESS_TOKEN_SECRET'),
-      expiresIn: this.confige_service.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+      expiresIn,
     });
     return {
       accessToken,
     };
   }
   public async getJwtRefreshToken(payload: User) {
+    const expiresIn =
+      this.confige_service.get('REFRESH_TIME_VALUE') +
+      this.confige_service.get('REFRESH_TIME_UNIT');
     const refreshToken = await this.jwt_service.signAsync(payload, {
       secret: this.confige_service.get('JWT_REFRESH_TOKEN_SECRET'),
-      expiresIn: this.confige_service.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+      expiresIn,
     });
     return {
       refreshToken,

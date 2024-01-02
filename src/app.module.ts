@@ -9,6 +9,7 @@ import { CategoryModule } from './api/category/category.module';
 import { SubCategoryModule } from './api/sub-category/sub-category.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MailModule } from './core/mail/mail.module';
 
 const DEFAULT_ADMIN = {
   email: 'admin@example.com',
@@ -43,6 +44,7 @@ const authenticate = async (email: string, password: string) => {
         }),
       }),
     ),
+    MailModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

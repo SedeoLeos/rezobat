@@ -21,16 +21,6 @@ import { MailService } from './mail.service';
       defaults: {
         from: process.env.EMAIL_CLIENT,
       },
-      //   template: {
-      //     dir: join(process.cwd(), 'views/pages'),
-      //     adapter: new EjsAdapter(),
-      //     options: {
-      //       strict: true,
-      //       satisfies: {
-      //         directory: join(process.cwd(), 'public'),
-      //       },
-      //     },
-      //   },
     }),
   ],
   providers: [MailService],

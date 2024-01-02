@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
 import { OTP, OTPSchema } from './schemas/otp.schema';
+import { OTPService } from './otp.service';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { OTP, OTPSchema } from './schemas/otp.schema';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, OTPService],
 })
 export class AuthModule {}

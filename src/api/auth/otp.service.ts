@@ -20,8 +20,8 @@ export class OTPService {
     @InjectModel(OTP.name) private model: Model<OTPDocument>,
   ) {}
   async create(user: User, type: 'is_first_auth' | 'is_forget_password') {
-    const otp = randomInt(100000, 999999);
-    const value = await argon.hash(otp.toString());
+    const otp = randomInt(100000, 999999).toString();
+    const value = await argon.hash(otp);
 
     const time_value = parseInt(this.confige_service.get('OTP_TIME_VALUE'));
 
@@ -29,12 +29,36 @@ export class OTPService {
       'OTP_TIME_UNIT',
     ) as dayjs.ManipulateType;
 
-    return await new this.model({
+    const _otp = await new this.model({
       [type]: true,
       value,
       expire: otpExxpiry(time_value, time_unit),
       phone: user.phone,
       user,
     }).save();
+    return { otp: _otp, value: otp };
+  }
+  async findOne(
+    phone: string,
+    value: string,
+    type: 'is_first_auth' | 'is_forget_password',
+  ) {
+    const otp_value = await this.model
+      .findOne({ phone: phone, type })
+      .populate('user')
+      .exec();
+    if (!otp_value) {
+      return;
+    }
+    const isMatch = await argon.verify(otp_value.value, value);
+    if (!isMatch) {
+      return;
+    }
+    const expire = dayjs(otp_value.expire);
+    const diff = dayjs().diff(expire);
+    if (diff < 0) {
+      return;
+    }
+    return otp_value;
   }
 }
