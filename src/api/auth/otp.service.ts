@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import * as argon from 'argon2';
 
 import { ConfigService } from '@nestjs/config';

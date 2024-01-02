@@ -9,6 +9,7 @@ import { CategoryModule } from './api/category/category.module';
 import { SubCategoryModule } from './api/sub-category/sub-category.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+
 const DEFAULT_ADMIN = {
   email: 'admin@example.com',
   password: 'password',
@@ -22,26 +23,26 @@ const authenticate = async (email: string, password: string) => {
 };
 @Module({
   imports: [
-    // import('@adminjs/nestjs').then(({ AdminModule }) =>
-    //   AdminModule.createAdminAsync({
-    //     useFactory: () => ({
-    //       adminJsOptions: {
-    //         rootPath: '/admin',
-    //         resources: [],
-    //       },
-    //       auth: {
-    //         authenticate,
-    //         cookieName: 'adminjs',
-    //         cookiePassword: 'secret',
-    //       },
-    //       sessionOptions: {
-    //         resave: true,
-    //         saveUninitialized: true,
-    //         secret: 'secret',
-    //       },
-    //     }),
-    //   }),
-    // ),
+    import('@adminjs/nestjs').then(({ AdminModule }) =>
+      AdminModule.createAdminAsync({
+        useFactory: () => ({
+          adminJsOptions: {
+            rootPath: '/admin',
+            resources: [],
+          },
+          auth: {
+            authenticate,
+            cookieName: 'adminjs',
+            cookiePassword: 'secret',
+          },
+          sessionOptions: {
+            resave: true,
+            saveUninitialized: true,
+            secret: 'secret',
+          },
+        }),
+      }),
+    ),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
