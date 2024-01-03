@@ -1,6 +1,6 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class Register {
+export class RegisterDto {
   @IsOptional()
   @IsString()
   first_name: string;
@@ -10,11 +10,15 @@ export class Register {
   last_name: string;
 
   @IsString()
+  @IsNotEmpty()
   phone: string;
 
   @IsString()
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsString()
+  @IsNotEmpty()
   password: string;
 }

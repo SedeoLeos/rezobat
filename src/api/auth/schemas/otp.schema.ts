@@ -7,7 +7,7 @@ export class OTP {
   @Prop()
   value: string;
   @Prop()
-  phone: string;
+  email: string;
   @Prop()
   expire: Date;
   @Prop()

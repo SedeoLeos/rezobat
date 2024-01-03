@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-
+import * as argon from 'argon2';
 @Injectable()
 export class UserService {
   constructor(
@@ -12,6 +12,13 @@ export class UserService {
   ) {}
   async create(createUserDto: CreateUserDto) {
     return await new this.model({ ...createUserDto }).save();
+  }
+  async activeCompte(user: User) {
+    return await this.model.findOneAndUpdate(user._id, { active: true });
+  }
+  async updatePassword(user: User, value: string) {
+    const password = await argon.hash(value);
+    return await this.model.findOneAndUpdate(user._id, { password });
   }
 
   async findAll() {
