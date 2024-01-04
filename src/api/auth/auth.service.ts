@@ -5,17 +5,21 @@ import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
-import { UserService } from '../user/user.service';
+import { UserService } from '../user/user.service.js';
 
 import { InjectModel } from '@nestjs/mongoose';
-import { Token, TokenDocument } from './schemas/token.schema';
+import { Token, TokenDocument } from './schemas/token.schema.js';
 import { Model } from 'mongoose';
-import { User } from '../user/schemas/user.schema';
-import { OTPService } from './otp.service';
-import { RegisterDto } from './dto/register.dto';
-import { MailService } from 'src/core/mail/mail.service';
-import { LoginDto } from './dto/login.dto';
-import { OTPRefreshDTO, OTPVerifyDto, UpdatePasswordDto } from './dto/otp.dto';
+import { User } from '../user/schemas/user.schema.js';
+import { OTPService } from './otp.service.js';
+import { RegisterDto } from './dto/register.dto.js';
+import { MailService } from './../../core/mail/mail.service.js';
+import { LoginDto } from './dto/login.dto.js';
+import {
+  OTPRefreshDTO,
+  OTPVerifyDto,
+  UpdatePasswordDto,
+} from './dto/otp.dto.js';
 
 const getExpiry = (value: number, unit: dayjs.ManipulateType) =>
   dayjs().add(value, unit).toDate();

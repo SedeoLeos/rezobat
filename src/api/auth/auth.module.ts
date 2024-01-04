@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service.js';
+import { AuthController } from './auth.controller.js';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Token, TokenSchema } from './schemas/token.schema';
+import { Token, TokenSchema } from './schemas/token.schema.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserModule } from '../user/user.module';
-import { OTP, OTPSchema } from './schemas/otp.schema';
-import { OTPService } from './otp.service';
+import { UserModule } from '../user/user.module.js';
+import { OTP, OTPSchema } from './schemas/otp.schema.js';
+import { OTPService } from './otp.service.js';
 
 @Module({
   imports: [

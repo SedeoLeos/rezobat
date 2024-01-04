@@ -6,8 +6,8 @@ import { ConfigService } from '@nestjs/config';
 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { OTP, OTPDocument } from './schemas/otp.schema';
-import { User } from '../user/schemas/user.schema';
+import { OTP, OTPDocument } from './schemas/otp.schema.js';
+import { User } from '../user/schemas/user.schema.js';
 import { randomInt } from 'crypto';
 
 const otpExxpiry = (value: number, unit: dayjs.ManipulateType) =>
@@ -82,9 +82,10 @@ export class OTPService {
     if (!isMatch) {
       return;
     }
+
     const expire = dayjs(otp_value.expire);
-    const diff = dayjs().diff(expire);
-    if (diff < 0) {
+    const diff = dayjs().diff(expire, 'minutes', true);
+    if (!diff) {
       return;
     }
     return otp_value;

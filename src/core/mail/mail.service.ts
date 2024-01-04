@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { SentMessageInfo } from 'nodemailer';
-import { User } from 'src/api/user/schemas/user.schema';
+import { User } from 'src/api/user/schemas/user.schema.js';
 
 @Injectable()
 export class MailService {

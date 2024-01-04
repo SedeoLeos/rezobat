@@ -1,6 +1,6 @@
-import { PageMetaDto } from './page-meta';
+import { PageMetaDto } from './page-meta.js';
 import { PageOptionsDto } from './page-option.dto';
-import { PageDto } from './page.dto';
+import { PageDto } from './page.dto.js';
 
 export const handlerReponse = <T>(
   page_options_dto: PageOptionsDto,

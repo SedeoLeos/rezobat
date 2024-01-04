@@ -10,6 +10,16 @@ import { SubCategoryModule } from './api/sub-category/sub-category.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailModule } from './core/mail/mail.module';
+import { Category } from './api/category/schema/category.schema';
+import { SubCategory } from './api/sub-category/schemas/sub-category.schema';
+(async () => {
+  const AdminJSMongoose = await import('@adminjs/mongoose');
+  const { AdminJS } = await import('adminjs');
+  AdminJS.registerAdapter({
+    Resource: AdminJSMongoose.Resource,
+    Database: AdminJSMongoose.Database,
+  });
+})();
 
 const DEFAULT_ADMIN = {
   email: 'admin@example.com',
@@ -24,12 +34,19 @@ const authenticate = async (email: string, password: string) => {
 };
 @Module({
   imports: [
+    // MongooseModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: async (config: ConfigService) => ({
+    //     uri: config.get('URL_DATABASE'),
+    //   }),
+    // }),
+    MongooseModule.forRoot('mongodb://localhost/rezobat'),
     import('@adminjs/nestjs').then(({ AdminModule }) =>
       AdminModule.createAdminAsync({
         useFactory: () => ({
           adminJsOptions: {
             rootPath: '/admin',
-            resources: [],
+            resources: [{ resource: Category }],
           },
           auth: {
             authenticate,
@@ -48,12 +65,7 @@ const authenticate = async (email: string, password: string) => {
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
-        uri: config.get('URL_DATABASE'),
-      }),
-    }),
+
     AuthModule,
     UserModule,
     MediaModule,

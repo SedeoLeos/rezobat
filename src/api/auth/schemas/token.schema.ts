@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as ShemaType } from 'mongoose';
-import { User } from 'src/api/user/schemas/user.schema';
+import { User } from './../../../api/user/schemas/user.schema.js';
 export type TokenDocument = HydratedDocument<Token>;
 @Schema({ timestamps: true })
 export class Token {

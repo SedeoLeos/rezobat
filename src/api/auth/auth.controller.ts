@@ -1,8 +1,8 @@
 import { Controller, Headers, Post, Request } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { OTPRefreshDTO, OTPVerifyDto } from './dto/otp.dto';
+import { AuthService } from './auth.service.js';
+import { LoginDto } from './dto/login.dto.js';
+import { RegisterDto } from './dto/register.dto.js';
+import { OTPRefreshDTO, OTPVerifyDto } from './dto/otp.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -17,13 +17,16 @@ export class AuthController {
     return this.authService.signIn(payload);
   }
   @Post('refresh')
-  refreshToken(@Headers() playload: any, @Request() request: any) {
-    request;
-    const { tokenId, authorisation } = playload;
+  refreshToken(
+    @Headers('authorisation') refreshToken: string,
+    @Headers('tokenId') tokenId: string,
+    @Request() request: any,
+  ) {
+    const { user } = request;
     return this.authService.getUserIfRefreshTokenMatches(
-      authorisation,
+      refreshToken,
       tokenId,
-      '',
+      user,
     );
   }
 
