@@ -7,14 +7,22 @@ import { MediaModule } from './api/media/media.module';
 import { RequestForServiceModule } from './api/request_for_service/request_for_service.module';
 import { CategoryModule } from './api/category/category.module';
 import { SubCategoryModule } from './api/sub-category/sub-category.module';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailModule } from './core/mail/mail.module';
 import { Category } from './api/category/schema/category.schema';
 import { SubCategory } from './api/sub-category/schemas/sub-category.schema';
+import { Model } from 'mongoose';
+import { AdminModule } from '@admin-bro/nestjs';
+import { User } from './api/user/schemas/user.schema';
+import AdminBroMongoose from '@admin-bro/mongoose';
+import AdminBro from 'admin-bro';
+// AdminBro.registerAdapter(AdminBroMongoose);
 (async () => {
   const AdminJSMongoose = await import('@adminjs/mongoose');
   const { AdminJS } = await import('adminjs');
+  console.log(3);
+
   AdminJS.registerAdapter({
     Resource: AdminJSMongoose.Resource,
     Database: AdminJSMongoose.Database,
@@ -34,31 +42,57 @@ const authenticate = async (email: string, password: string) => {
 };
 @Module({
   imports: [
-    // MongooseModule.forRootAsync({
-    //   inject: [ConfigService],
-    //   useFactory: async (config: ConfigService) => ({
-    //     uri: config.get('URL_DATABASE'),
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        uri: config.get('URL_DATABASE'),
+      }),
+    }),
+    // AdminBro,
+    // // MongooseModule.forRoot('mongodb://localhost/rezobat'),
+    // AdminModule.createAdminAsync({
+    //   imports: [
+    //     UserModule, // importing module that exported model we want to inject
+    //   ],
+    //   inject: [
+    //     getModelToken('User'), // using mongoose function to inject dependency
+    //   ],
+    //   useFactory: (adminModel: Model<User>) => ({
+    //     // injected dependecy will appear as an argument
+    //     adminBroOptions: {
+    //       rootPath: '/admin',
+    //       resources: [{ resource: adminModel }],
+    //     },
     //   }),
     // }),
-    MongooseModule.forRoot('mongodb://localhost/rezobat'),
+
     import('@adminjs/nestjs').then(({ AdminModule }) =>
       AdminModule.createAdminAsync({
-        useFactory: () => ({
-          adminJsOptions: {
-            rootPath: '/admin',
-            resources: [{ resource: Category }],
-          },
-          auth: {
-            authenticate,
-            cookieName: 'adminjs',
-            cookiePassword: 'secret',
-          },
-          sessionOptions: {
-            resave: true,
-            saveUninitialized: true,
-            secret: 'secret',
-          },
-        }),
+        imports: [
+          UserModule, // importing module that exported model we want to inject
+        ],
+        inject: [
+          getModelToken('User'), // using mongoose function to inject dependency
+        ],
+        useFactory: () => {
+          console.log(1)
+          return {
+            adminJsOptions: {
+              rootPath: '/admin',
+              resources: [{ resource: User }],
+            },
+            auth: {
+              authenticate,
+              cookieName: 'adminjs',
+              cookiePassword: 'secret',
+            },
+            sessionOptions: {
+              resave: true,
+              saveUninitialized: true,
+              secret: 'secret',
+            },
+          };
+        },
       }),
     ),
     MailModule,
