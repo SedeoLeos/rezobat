@@ -19,14 +19,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
-  
   "dependencies": {
-    "@admin-bro/express": "^3.1.0",
-    "@admin-bro/mongoose": "^1.1.0",
-    "@admin-bro/nestjs": "^1.1.0",
-    "@adminjs/express": "^6.1.0",
+    "@adminjs/express": "6.1.0",
     "@adminjs/mongoose": "^4.0.0",
     "@adminjs/nestjs": "^6.1.0",
+    "@adminjs/upload": "^4.0.2",
     "@nestjs-modules/mailer": "^1.10.3",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",
@@ -35,8 +32,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/mongoose": "^10.0.2",
     "@nestjs/platform-express": "^10.0.0",
-    "admin-bro": "^4.0.1",
-    "adminjs": "^7.4.0",
+    "adminjs": "^7.5.2",
     "argon2": "^0.31.2",
     "class-validator": "^0.14.0",
     "connect-pg-simple": "^9.0.1",

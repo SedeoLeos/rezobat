@@ -10,7 +10,19 @@ import { SubCategoryModule } from './api/sub-category/sub-category.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailModule } from './core/mail/mail.module';
+import { UserModel } from './admin/user.model';
 
+const DEFAULT_ADMIN = {
+  email: 'admin@example.com',
+  password: 'password',
+};
+
+const authenticate = async (email: string, password: string) => {
+  if (email === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password) {
+    return Promise.resolve(DEFAULT_ADMIN);
+  }
+  return null;
+};
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -19,7 +31,53 @@ import { MailModule } from './core/mail/mail.module';
         uri: config.get('DATABASE_URL'),
       }),
     }),
+    // AdminBro,
+    // // MongooseModule.forRoot('mongodb://localhost/rezobat'),
+    // AdminModule.createAdminAsync({
+    //   imports: [
+    //     UserModule, // importing module that exported model we want to inject
+    //   ],
+    //   inject: [
+    //     getModelToken('User'), // using mongoose function to inject dependency
+    //   ],
+    //   useFactory: (adminModel: Model<User>) => ({
+    //     // injected dependecy will appear as an argument
+    //     adminBroOptions: {
+    //       rootPath: '/admin',
+    //       resources: [{ resource: adminModel }],
+    //     },
+    //   }),
+    // }),
 
+    import('@adminjs/nestjs').then(({ AdminModule }) =>
+      AdminModule.createAdminAsync({
+        imports: [
+          UserModule, // importing module that exported model we want to inject
+        ],
+        inject: [ConfigService],
+        useFactory: async () => {
+          // const AdminJSMongoose = await import('@adminjs/mongoose');
+          // const db = new AdminJSMongoose.Resource(config.get('URL_DATABASE'));
+
+          return {
+            adminJsOptions: {
+              rootPath: '/admin',
+              resources: [{ resource: UserModel }],
+            },
+            auth: {
+              authenticate,
+              cookieName: 'adminjs',
+              cookiePassword: 'secret',
+            },
+            sessionOptions: {
+              resave: true,
+              saveUninitialized: true,
+              secret: 'secret',
+            },
+          };
+        },
+      }),
+    ),
     MailModule,
     ConfigModule.forRoot({
       isGlobal: true,
