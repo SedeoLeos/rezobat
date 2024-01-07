@@ -10,11 +10,7 @@ export class MailService {
   async sigup(user: User, value: string): Promise<SentMessageInfo> {
     try {
       return await this.mailerService.sendMail({
-        to: ['smatsoula19g@gmail.com', user.email],
-        from: {
-          name: process.env.APP_NAME,
-          address: process.env.EMAIL_CLIENT,
-        },
+        to: ['gedeon.matsoula@nanocreatives.com', user.email],
         subject: 'Code de Verification',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml">

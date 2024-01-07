@@ -17,8 +17,10 @@ export class User extends Document {
   email: string;
   @Prop({ required: true })
   password: string;
-  @Prop({ enum: ['Provider', 'Client', 'Admin'] })
+  @Prop({ enum: ['Provider', 'Client', 'Admin'], default: 'Client' })
   role: string;
+  @Prop({ default: false })
+  active: boolean;
   @Prop({ default: false })
   isAdmin: boolean;
   @Prop({ type: [{ type: SchemaType.Types.ObjectId, ref: 'SubCategory' }] })

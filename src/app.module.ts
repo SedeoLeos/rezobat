@@ -11,7 +11,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailModule } from './core/mail/mail.module';
 import { UserModel } from './admin/user.model';
-
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { NestjsFormDataModule } from 'nestjs-form-data';
 const DEFAULT_ADMIN = {
   email: 'admin@example.com',
   password: 'password',
@@ -31,24 +32,8 @@ const authenticate = async (email: string, password: string) => {
         uri: config.get('DATABASE_URL'),
       }),
     }),
-    // AdminBro,
-    // // MongooseModule.forRoot('mongodb://localhost/rezobat'),
-    // AdminModule.createAdminAsync({
-    //   imports: [
-    //     UserModule, // importing module that exported model we want to inject
-    //   ],
-    //   inject: [
-    //     getModelToken('User'), // using mongoose function to inject dependency
-    //   ],
-    //   useFactory: (adminModel: Model<User>) => ({
-    //     // injected dependecy will appear as an argument
-    //     adminBroOptions: {
-    //       rootPath: '/admin',
-    //       resources: [{ resource: adminModel }],
-    //     },
-    //   }),
-    // }),
-
+    NestjsFormDataModule.config({ isGlobal: true }),
+    EventEmitterModule.forRoot(),
     import('@adminjs/nestjs').then(({ AdminModule }) =>
       AdminModule.createAdminAsync({
         imports: [

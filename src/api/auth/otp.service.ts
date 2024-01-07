@@ -72,16 +72,20 @@ export class OTPService {
     type: 'is_first_auth' | 'is_forget_password',
   ) {
     const otp_value = await this.model
-      .findOne({ email, type })
+      .findOne({ email, [type]: true })
       .populate('user')
       .exec();
+    console.log(otp_value);
     if (!otp_value) {
       return;
     }
     const isMatch = await argon.verify(otp_value.value, value);
+    console.log(otp_value);
+
     if (!isMatch) {
       return;
     }
+    console.log(otp_value);
 
     const expire = dayjs(otp_value.expire);
     const diff = dayjs().diff(expire, 'minutes', true);

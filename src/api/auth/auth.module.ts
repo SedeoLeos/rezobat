@@ -8,6 +8,9 @@ import { ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module.js';
 import { OTP, OTPSchema } from './schemas/otp.schema.js';
 import { OTPService } from './otp.service.js';
+import { JwtTokenService } from './jwt-token.service.js';
+import { Auth0Guard } from './guard/jwt.guard.js';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -24,6 +27,14 @@ import { OTPService } from './otp.service.js';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, OTPService],
+  providers: [
+    AuthService,
+    OTPService,
+    JwtTokenService,
+    {
+      provide: APP_GUARD,
+      useClass: Auth0Guard,
+    },
+  ],
 })
 export class AuthModule {}

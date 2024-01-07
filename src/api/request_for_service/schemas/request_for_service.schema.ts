@@ -1,5 +1,5 @@
 import { Schema, SchemaFactory, Prop } from '@nestjs/mongoose';
-import { HydratedDocument, Schema as SchemaMongoose } from 'mongoose';
+import { Document, HydratedDocument, Schema as SchemaMongoose } from 'mongoose';
 import { Category } from 'src/api/category/schema/category.schema';
 import { Media } from 'src/api/media/schemas/media.schema';
 import { SubCategory } from 'src/api/sub-category/schemas/sub-category.schema';
@@ -7,7 +7,7 @@ import { User } from 'src/api/user/schemas/user.schema';
 
 export type RequestForServiceDocument = HydratedDocument<RequestForService>;
 @Schema({ timestamps: true })
-export class RequestForService {
+export class RequestForService extends Document {
   @Prop()
   name: string;
   @Prop()

@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Document } from 'mongoose';
 
 export type MediaDocument = HydratedDocument<Media>;
 @Schema({ timestamps: true })
-export class Media {
+export class Media extends Document {
   @Prop()
   name: string;
   @Prop()
@@ -11,7 +11,7 @@ export class Media {
   @Prop()
   size: string;
   @Prop()
-  content_type: string;
+  mimetype: string;
 }
 
 export const MediaSchema = SchemaFactory.createForClass(Media);

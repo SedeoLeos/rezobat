@@ -4,6 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
 import mongoose from 'mongoose';
+import { ValidationPipe } from '@nestjs/common';
 
 const start = async () => {
   const { Database, Resource } = await import('@adminjs/mongoose');
@@ -31,7 +32,10 @@ async function bootstrap() {
   // const adminRouter = AdminJSExpress.buildRouter(admin);
 
   // app.use(admin.options.rootPath, adminRouter);
-  app.useStaticAssets(join(__dirname, '..', 'public'), { prefix: 'public' });
+  app.useGlobalPipes(new ValidationPipe());
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/public/',
+  });
 
   await app.listen(process.env.PORT ?? 3000, () => {
     console.log('you app listen to :', process.env.PORT);

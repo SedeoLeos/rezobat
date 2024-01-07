@@ -1,1 +1,3 @@
-export class CreateRequestForServiceDto {}
+export class CreateRequestForServiceDto {
+    
+}

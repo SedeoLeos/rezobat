@@ -1,12 +1,43 @@
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsNumberString,
+  IsString,
+} from 'class-validator';
+
+export type otpType = 'is_first_auth' | 'is_forget_password';
 export class OTPVerifyDto {
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
+  @IsNumberString()
+  @IsNotEmpty()
   otp: string;
-  type: 'is_first_auth' | 'is_forget_password';
+  @IsEnum(['is_first_auth', 'is_forget_password'])
+  @IsNotEmpty()
+  type: otpType;
 }
 export class OTPRefreshDTO {
+  @IsString()
+  @IsNotEmpty()
   email: string;
-  type: 'is_first_auth' | 'is_forget_password';
+  @IsString()
+  @IsEnum(['is_first_auth', 'is_forget_password'])
+  @IsNotEmpty()
+  type: otpType;
+}
+export class OTPPasswordDTO {
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+  @IsString()
+  @IsEnum(['is_first_auth', 'is_forget_password'])
+  @IsNotEmpty()
+  type: otpType = 'is_forget_password';
 }
 export class UpdatePasswordDto {
+  @IsString()
+  @IsNotEmpty()
   password: string;
 }

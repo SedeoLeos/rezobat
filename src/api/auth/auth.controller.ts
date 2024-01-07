@@ -1,21 +1,30 @@
-import { Controller, Headers, Post, Request } from '@nestjs/common';
-import { AuthService } from './auth.service.js';
-import { LoginDto } from './dto/login.dto.js';
-import { RegisterDto } from './dto/register.dto.js';
-import { OTPRefreshDTO, OTPVerifyDto } from './dto/otp.dto.js';
+import { Body, Controller, Headers, Post, Request } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { OTPPasswordDTO, OTPRefreshDTO, OTPVerifyDto } from './dto/otp.dto';
+import {
+  Abilitys,
+  Public,
+  Refresh,
+} from 'src/core/decorators/public.decorator';
+import { AbilitysEnum } from './tools/token.builder.js';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('sign-in')
-  signIn(payload: LoginDto) {
+  signIn(@Body() payload: LoginDto) {
     return this.authService.signIn(payload);
   }
+  @Public()
   @Post('sign-up')
-  signUp(payload: RegisterDto) {
-    return this.authService.signIn(payload);
+  signUp(@Body() payload: RegisterDto) {
+    return this.authService.signUp(payload);
   }
+  @Refresh()
   @Post('refresh')
   refreshToken(
     @Headers('authorisation') refreshToken: string,
@@ -31,10 +40,19 @@ export class AuthController {
   }
 
   // Otp login
-  otpVerify(playload: OTPVerifyDto) {
+  @Abilitys(AbilitysEnum.VERIFIED_OTP)
+  @Post('verify-otp')
+  otpVerify(@Body() playload: OTPVerifyDto) {
     return this.authService.otpVerify(playload);
   }
-  optRefresh(playload: OTPRefreshDTO) {
+  @Public()
+  @Post('forget-password')
+  otpPassword(@Body() playload: OTPPasswordDTO) {
+    return this.authService.otpPassword(playload);
+  }
+  @Public()
+  @Post('refresh-otp')
+  optRefresh(@Body() playload: OTPRefreshDTO) {
     return this.authService.otpRefresh(playload);
   }
   // Forget password @email => renvoie le mail à utilisateur aprés trois essais en lui demande de revenir prochainement
