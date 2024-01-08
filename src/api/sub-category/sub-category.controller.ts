@@ -10,7 +10,9 @@ import {
 import { SubCategoryService } from './sub-category.service';
 import { CreateSubCategoryDto } from './dto/create-sub-category.dto';
 import { UpdateSubCategoryDto } from './dto/update-sub-category.dto';
+import { Public } from 'src/core/decorators/public.decorator';
 
+@Public()
 @Controller('sub-category')
 export class SubCategoryController {
   constructor(private readonly subCategoryService: SubCategoryService) {}

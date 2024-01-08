@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './api/auth/auth.module';
 import { UserModule } from './api/user/user.module';
 import { MediaModule } from './api/media/media.module';
-import { RequestForServiceModule } from './api/request_for_service/request_for_service.module';
+import { ContractModule } from './api/contract/contract.module';
 import { CategoryModule } from './api/category/category.module';
 import { SubCategoryModule } from './api/sub-category/sub-category.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,6 +13,8 @@ import { MailModule } from './core/mail/mail.module';
 import { UserModel } from './admin/user.model';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NestjsFormDataModule } from 'nestjs-form-data';
+import { UniqueConstraintMongoose } from './core/decorators/unique.decorators';
+import { ExistConstraintMongoose } from './core/decorators/exist.decorators';
 const DEFAULT_ADMIN = {
   email: 'admin@example.com',
   password: 'password',
@@ -36,9 +38,6 @@ const authenticate = async (email: string, password: string) => {
     EventEmitterModule.forRoot(),
     import('@adminjs/nestjs').then(({ AdminModule }) =>
       AdminModule.createAdminAsync({
-        imports: [
-          UserModule, // importing module that exported model we want to inject
-        ],
         inject: [ConfigService],
         useFactory: async () => {
           // const AdminJSMongoose = await import('@adminjs/mongoose');
@@ -71,11 +70,11 @@ const authenticate = async (email: string, password: string) => {
     AuthModule,
     UserModule,
     MediaModule,
-    RequestForServiceModule,
+    ContractModule,
     CategoryModule,
     SubCategoryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UniqueConstraintMongoose, ExistConstraintMongoose],
 })
 export class AppModule {}

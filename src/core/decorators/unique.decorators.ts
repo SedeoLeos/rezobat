@@ -11,7 +11,7 @@ import { Connection } from 'mongoose';
 
 @Injectable()
 @ValidatorConstraint({ name: 'Unique', async: true })
-export class UniqueConstraintTypeOrm implements ValidatorConstraintInterface {
+export class UniqueConstraintMongoose implements ValidatorConstraintInterface {
   constructor(@InjectConnection() private readonly connection: Connection) {}
 
   async validate(value: any, args: ValidationArguments): Promise<boolean> {
@@ -23,19 +23,18 @@ export class UniqueConstraintTypeOrm implements ValidatorConstraintInterface {
       dtoField = primary.dtoField as string;
     }
     const object = args.object;
-    if (!value || !model) return false;
+    if (!value || !model || !uniqueField) return false;
 
     const where = {};
 
-    if (value && uniqueField) {
-      where[uniqueField] = value;
-    }
+    where[uniqueField] = value;
+
     if (!dtoField) {
       dtoField = dbField;
     }
     if (dbField && dtoField) {
       if (object[dtoField]) {
-        where[dbField] = object[dtoField];
+        where[dbField] = { $ne: object[dtoField] };
       }
     }
 
@@ -49,9 +48,10 @@ export class UniqueConstraintTypeOrm implements ValidatorConstraintInterface {
       const result = await this.connection
         .model(model as string)
         .findOne({
-          where: where,
+          ...where,
         })
         .exec();
+
       if (result == null) {
         return true;
       }
@@ -67,7 +67,7 @@ export class UniqueConstraintTypeOrm implements ValidatorConstraintInterface {
   }
 }
 
-export function IsUniqueTypeOrma(
+export function IsUniqueMongoose(
   model: string,
   uniqueField: string,
   primary?: { dbField: string; dtoField?: string },
@@ -79,7 +79,7 @@ export function IsUniqueTypeOrma(
       propertyName: propertyName,
       options: validationOptions,
       constraints: [model, uniqueField, primary],
-      validator: UniqueConstraintTypeOrm,
+      validator: UniqueConstraintMongoose,
     });
   };
 }

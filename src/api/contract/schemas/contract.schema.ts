@@ -4,14 +4,14 @@ import { Category } from 'src/api/category/schema/category.schema';
 import { Media } from 'src/api/media/schemas/media.schema';
 import { SubCategory } from 'src/api/sub-category/schemas/sub-category.schema';
 import { User } from 'src/api/user/schemas/user.schema';
-export type Requesttype =
+export type StatusContract =
   | 'En attends de traitement'
   | 'En Cours'
   | 'Terminer'
   | 'Annuler';
-export type RequestForServiceDocument = HydratedDocument<RequestForService>;
+export type ContractDocument = HydratedDocument<Contract>;
 @Schema({ timestamps: true })
-export class RequestForService extends Document {
+export class Contract extends Document {
   @Prop()
   name: string;
   @Prop()
@@ -34,8 +34,7 @@ export class RequestForService extends Document {
     enum: ['En attends de traitement', 'En Cours', 'Terminer', 'Annuler'],
     default: 'En attends de traitement',
   })
-  status: Requesttype;
+  status: StatusContract;
 }
 
-export const RequestForServiceSchema =
-  SchemaFactory.createForClass(RequestForService);
+export const ContractSchema = SchemaFactory.createForClass(Contract);
