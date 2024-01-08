@@ -4,7 +4,11 @@ import { Category } from 'src/api/category/schema/category.schema';
 import { Media } from 'src/api/media/schemas/media.schema';
 import { SubCategory } from 'src/api/sub-category/schemas/sub-category.schema';
 import { User } from 'src/api/user/schemas/user.schema';
-
+export type Requesttype =
+  | 'En attends de traitement'
+  | 'En Cours'
+  | 'Terminer'
+  | 'Annuler';
 export type RequestForServiceDocument = HydratedDocument<RequestForService>;
 @Schema({ timestamps: true })
 export class RequestForService extends Document {
@@ -22,6 +26,15 @@ export class RequestForService extends Document {
   sub_category: SubCategory;
   @Prop({ type: [{ type: SchemaMongoose.Types.ObjectId, ref: 'Media' }] })
   files: Media[];
+  @Prop()
+  phone: string;
+  @Prop()
+  email: string;
+  @Prop({
+    enum: ['En attends de traitement', 'En Cours', 'Terminer', 'Annuler'],
+    default: 'En attends de traitement',
+  })
+  status: Requesttype;
 }
 
 export const RequestForServiceSchema =

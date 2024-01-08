@@ -1,84 +1,85 @@
-// import {
-//   registerDecorator,
-//   ValidationOptions,
-//   ValidatorConstraint,
-//   ValidatorConstraintInterface,
-//   ValidationArguments,
-// } from 'class-validator';
-// import { Injectable } from '@nestjs/common';
-// import { DataSource, Not } from 'typeorm';
+import {
+  registerDecorator,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
+} from 'class-validator';
+import { Injectable } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
-// @Injectable()
-// @ValidatorConstraint({ name: 'Unique', async: true })
-// export class UniqueConstraintTypeOrm implements ValidatorConstraintInterface {
-//   constructor(private dataSource: DataSource) {}
+@Injectable()
+@ValidatorConstraint({ name: 'Unique', async: true })
+export class UniqueConstraintTypeOrm implements ValidatorConstraintInterface {
+  constructor(@InjectConnection() private readonly connection: Connection) {}
 
-//   async validate(value: any, args: ValidationArguments): Promise<boolean> {
-//     const [model, uniqueField, primary] = args.constraints;
-//     let dbField = null,
-//       dtoField = null;
-//     if (primary) {
-//       dbField = primary.dbField as string;
-//       dtoField = primary.dtoField as string;
-//     }
+  async validate(value: any, args: ValidationArguments): Promise<boolean> {
+    const [model, uniqueField, primary] = args.constraints;
+    let dbField = null,
+      dtoField = null;
+    if (primary) {
+      dbField = primary.dbField as string;
+      dtoField = primary.dtoField as string;
+    }
+    const object = args.object;
+    if (!value || !model) return false;
 
-//     const object = args.object;
-//     if (!value || !model) return false;
+    const where = {};
 
-//     const where = {};
+    if (value && uniqueField) {
+      where[uniqueField] = value;
+    }
+    if (!dtoField) {
+      dtoField = dbField;
+    }
+    if (dbField && dtoField) {
+      if (object[dtoField]) {
+        where[dbField] = object[dtoField];
+      }
+    }
 
-//     if (value && uniqueField) {
-//       where[uniqueField] = value;
-//     }
-//     if (!dtoField) {
-//       dtoField = dbField;
-//     }
-//     if (dbField && dtoField) {
-//       if (object[dtoField]) {
-//         where[dbField] = Not(object[dtoField]);
-//       }
-//     }
+    try {
+      if (!this.connection.model(model)) {
+        return false;
+      }
+      if (Object.keys(where).length < 1) {
+        return false;
+      }
+      const result = await this.connection
+        .model(model as string)
+        .findOne({
+          where: where,
+        })
+        .exec();
+      if (result == null) {
+        return true;
+      }
+      return !result;
+    } catch (e) {
+      return false;
+    }
+  }
 
-//     try {
-//       if (!this.dataSource.getRepository(model)) {
-//         return false;
-//       }
-//       if (Object.keys(where).length < 1) {
-//         return false;
-//       }
-//       const result = await this.dataSource
-//         .getRepository(model as string)
-//         .findOne({
-//           where: where,
-//         });
-//       if (result == null) {
-//         return true;
-//       }
-//       return !result;
-//     } catch (e) {
-//       return false;
-//     }
-//   }
+  defaultMessage(args: ValidationArguments) {
+    const [model] = args.constraints;
+    return ` this ${args.property} exist in table ${model}`;
+  }
+}
 
-//   defaultMessage(args: ValidationArguments) {
-//     const [model] = args.constraints;
-//     return ` this ${args.property} exist in table ${model}`;
-//   }
-// }
-
-// export function IsUniqueTypeOrma(
-//   model: string,
-//   uniqueField: string,
-//   primary?: { dbField: string; dtoField?: string },
-//   validationOptions?: ValidationOptions,
-// ) {
-//   return function (object: any, propertyName: string) {
-//     registerDecorator({
-//       target: object.constructor,
-//       propertyName: propertyName,
-//       options: validationOptions,
-//       constraints: [model, uniqueField, primary],
-//       validator: UniqueConstraintTypeOrm,
-//     });
-//   };
-// }
+export function IsUniqueTypeOrma(
+  model: string,
+  uniqueField: string,
+  primary?: { dbField: string; dtoField?: string },
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: any, propertyName: string) {
+    registerDecorator({
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [model, uniqueField, primary],
+      validator: UniqueConstraintTypeOrm,
+    });
+  };
+}

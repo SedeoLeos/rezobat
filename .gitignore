@@ -1,5 +1,6 @@
 # compiled output
 /dist
+/public
 /node_modules
 /.adminjs
 .env
