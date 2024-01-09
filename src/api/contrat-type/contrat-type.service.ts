@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSubCategoryDto } from './dto/create-sub-category.dto';
-import { UpdateSubCategoryDto } from './dto/update-sub-category.dto';
-import { InjectModel } from '@nestjs/mongoose';
+import { CreateContratTypeDto } from './dto/create-contrat-type.dto';
+import { UpdateContratTypeDto } from './dto/update-contrat-type.dto';
 import {
-  SubCategory,
-  SubCategoryDocument,
-} from './schemas/sub-category.schema';
+  ContratType,
+  ContrattypeDocument,
+} from './schemas/contrat-type.schema';
 import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
-export class SubCategoryService {
+export class ContratTypeService {
   constructor(
-    @InjectModel(SubCategory.name) private model: Model<SubCategoryDocument>,
+    @InjectModel(ContratType.name) private model: Model<ContrattypeDocument>,
   ) {}
-  async create(createSubCategoryDto: CreateSubCategoryDto) {
-    return await new this.model({ ...createSubCategoryDto }).save();
+  async create(createContratTypeDto: CreateContratTypeDto) {
+    return await new this.model({ ...createContratTypeDto }).save();
   }
 
   async findAll(skip = 0, limit?: number) {
@@ -36,8 +36,8 @@ export class SubCategoryService {
     return await this.model.findOne({ id }).exec();
   }
 
-  async update(id: string, updateSubCategoryDto: UpdateSubCategoryDto) {
-    return await this.model.findByIdAndUpdate(id, { ...updateSubCategoryDto });
+  async update(id: string, updateSContratTypeDto: UpdateContratTypeDto) {
+    return await this.model.findByIdAndUpdate(id, { ...updateSContratTypeDto });
   }
 
   async remove(id: string) {

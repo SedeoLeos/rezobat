@@ -1,8 +1,8 @@
 import { Schema, SchemaFactory, Prop } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Schema as SchemaMongoose } from 'mongoose';
+import { ContratType } from 'src/api/contrat-type/schemas/contrat-type.schema';
 import { Job } from 'src/api/job/schema/job.schema';
 import { Media } from 'src/api/media/schemas/media.schema';
-import { SubCategory } from 'src/api/sub-category/schemas/sub-category.schema';
 import { User } from 'src/api/user/schemas/user.schema';
 export type StatusContract =
   | 'En attends de traitement'
@@ -22,8 +22,8 @@ export class Contract extends Document {
   provider: User;
   @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'Job' })
   job: Job;
-  @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'SubCategory' })
-  sub_category: SubCategory;
+  @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'ContratType' })
+  type: ContratType;
   @Prop({ type: [{ type: SchemaMongoose.Types.ObjectId, ref: 'Media' }] })
   files: Media[];
   @Prop()

@@ -55,8 +55,4 @@ export class AuthController {
   optRefresh(@Body() playload: OTPRefreshDTO) {
     return this.authService.otpRefresh(playload);
   }
-  // Forget password @email => renvoie le mail à utilisateur aprés trois essais en lui demande de revenir prochainement
-  // forgetResetPassword(playload: UpdatePasswordDto) {
-  // return this.authService.updatePass(playload);
-  // }
 }

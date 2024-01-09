@@ -22,11 +22,11 @@ export class ContractService {
     const {
       provider_id,
       job_id,
-      sub_category_id,
+      type_id,
       files: filsMemory,
       ...result
     } = createContractDto;
-    const sub_category = { _id: sub_category_id };
+    const type = { _id: type_id };
     const job = { _id: job_id };
     const provider = { _id: provider_id };
     if (filsMemory) {
@@ -52,15 +52,15 @@ export class ContractService {
           client: user,
           provider,
           job,
-          sub_category,
-        }).populate(['client', 'provider', 'job', 'sub_category'])
+          type,
+        }).populate(['client', 'provider', 'job', 'type'])
       ).save();
     }
     return await new this.model({
       ...result,
       provider,
       job,
-      sub_category,
+      type,
     }).save();
   }
 
@@ -96,9 +96,8 @@ export class ContractService {
     if (!contract) {
       return;
     }
-    const { provider_id, job_id, sub_category_id, ...result } =
-      updateContratDto;
-    const sub_category = { _id: sub_category_id };
+    const { provider_id, job_id, type_id, ...result } = updateContratDto;
+    const type = { _id: type_id };
     const job = { _id: job_id };
     const provider = { _id: provider_id };
 
@@ -108,7 +107,7 @@ export class ContractService {
           ...result,
           provider,
           job,
-          sub_category,
+          type,
         })
         .populate(['client', 'provider', 'job', 'sub_category'])
     ).save();

@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { SentMessageInfo } from 'nodemailer';
 import { User } from 'src/api/user/schemas/user.schema.js';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class MailService {
-  LOGO_APP = 'https://i.ibb.co/Qbnj4mz/logo.png';
-  constructor(private mailerService: MailerService) {}
+  LOGO_APP = this.config.get('MAIL_LOGO');
+  constructor(
+    private mailerService: MailerService,
+    private config: ConfigService,
+  ) {}
 
   async signup(user: User, value: string): Promise<SentMessageInfo> {
     try {

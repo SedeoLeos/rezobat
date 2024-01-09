@@ -13,7 +13,10 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginationParams } from 'src/core/pagination/page-option.dto';
+import {
+  PaginationParams,
+  PaginationParamsSearch,
+} from 'src/core/pagination/page-option.dto';
 import { UserCRUDMessage } from './message/user.message';
 import { Public } from 'src/core/decorators/public.decorator';
 
@@ -37,6 +40,10 @@ export class UserController {
   @Get()
   findAll(@Query() { limit, skip }: PaginationParams) {
     return this.userService.findAll(skip, limit);
+  }
+  @Get('search')
+  findSearch(@Query() { limit, skip, jobs }: PaginationParamsSearch) {
+    return this.userService.search(skip, jobs, limit);
   }
 
   @Public()

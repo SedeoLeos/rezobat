@@ -28,8 +28,8 @@ export class CreateContractDto {
   @IsString()
   @IsNotEmpty()
   @IsMongoId()
-  @IsExistMongoose('SubCategory', '_id')
-  sub_category_id: string;
+  @IsExistMongoose('ContratType', '_id')
+  type_id: string;
 
   @IsString()
   @IsNotEmpty()

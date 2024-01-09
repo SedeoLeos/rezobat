@@ -49,12 +49,7 @@ export class JobService {
   }
 
   async findOne(id: string) {
-    const entity = await this.model.findOne({ _id: id }).exec();
-
-    return {
-      entity,
-      status: 200,
-    };
+    return await this.model.findOne({ _id: id }).exec();
   }
 
   async update(id: string, updateJobDto: UpdateJobDto) {

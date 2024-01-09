@@ -11,12 +11,7 @@ import { OTPService } from './otp.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { MailService } from './../../core/mail/mail.service.js';
 import { LoginDto } from './dto/login.dto.js';
-import {
-  OTPPasswordDTO,
-  OTPRefreshDTO,
-  OTPVerifyDto,
-  UpdatePasswordDto,
-} from './dto/otp.dto.js';
+import { OTPPasswordDTO, OTPRefreshDTO, OTPVerifyDto } from './dto/otp.dto.js';
 import { JwtTokenService } from './jwt-token.service.js';
 import { AbilitysEnum, TokenBuilder, TokenI } from './tools/token.builder.js';
 @Injectable()
@@ -176,21 +171,7 @@ export class AuthService {
       refresh: false,
     });
   }
-  async activate_account(user: User) {
-    console.log(user);
-    const { _id: id } = user;
-    const _user = await this.user_service.updateSimple(id, { active: true });
-    return await this.makeCompleted(_user);
-  }
-  async reset_password(user: User, payload: UpdatePasswordDto) {
-    console.log(user);
-    const { _id: id } = user;
-    const hash = argon.hash(payload.password);
-    const _user = await this.user_service.updateSimple(id, {
-      password: hash,
-    });
-    return await this.makeCompleted(_user);
-  }
+
   async makeCompleted(user: User) {
     const tokenbuilder = new TokenBuilder<User>();
     tokenbuilder.setUser(user.toJSON());

@@ -76,6 +76,20 @@ export class UserService {
       status: 200,
     };
   }
+  async search(skip = 0, jobs: string[], limit?: number) {
+    const count = await this.model.countDocuments({}).exec();
+    const page_total = Math.floor((count - 1) / limit) + 1;
+    const query = this.model.find({ 'jobs.name': { $in: jobs } }).skip(skip);
+    if (limit) {
+      query.limit(limit);
+    }
+    const data = await query.exec();
+    return {
+      data: data,
+      page_total: page_total,
+      status: 200,
+    };
+  }
 
   async findOne(id: string) {
     return await this.model.findOne({ id });
