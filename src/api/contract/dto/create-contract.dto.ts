@@ -22,8 +22,8 @@ export class CreateContractDto {
   @IsString()
   @IsNotEmpty()
   @IsMongoId()
-  @IsExistMongoose('Category', '_id')
-  category_id: string;
+  @IsExistMongoose('Job', '_id')
+  job_id: string;
 
   @IsString()
   @IsNotEmpty()

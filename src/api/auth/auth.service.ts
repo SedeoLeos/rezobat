@@ -60,10 +60,10 @@ export class AuthService {
   }
   async signUp(register_dto: RegisterDto) {
     register_dto.password = await argon.hash(register_dto.password);
-    const user = await this.user_service.create(register_dto);
+    const user = await this.user_service.createSimple(register_dto);
     const { value } = await this.opt_service.create(user, 'is_first_auth');
 
-    this.mail_service.sigup(user, value);
+    this.mail_service.signup(user, value);
     const tokenbuilder = new TokenBuilder<User>();
     tokenbuilder
       .setUser(user)
@@ -114,16 +114,22 @@ export class AuthService {
     }
   }
   async otpRefresh(playload: OTPRefreshDTO) {
-    const found = await this.user_service.findBy(playload.email);
+    const { type, email } = playload;
+    const found = await this.user_service.findBy(email);
     if (!found) {
       return;
     }
-    const otp = await this.opt_service.create(found, playload.type, true);
+    const otp = await this.opt_service.create(found, type, true);
     if (!otp) {
       return;
     }
     const { value } = otp;
-    await this.mail_service.sigup(found, value);
+    if (type == 'is_first_auth') {
+      await this.mail_service.signup(found, value);
+    }
+    if (type == 'is_forget_password') {
+      await this.mail_service.resetPassword(found, value);
+    }
     const tokenbuilder = new TokenBuilder<User>();
     tokenbuilder
       .setUser(found)
@@ -143,7 +149,7 @@ export class AuthService {
       return;
     }
     const { value } = otp;
-    await this.mail_service.sigup(found, value);
+    await this.mail_service.resetPassword(found, value);
     const tokenbuilder = new TokenBuilder<User>();
     tokenbuilder
       .setUser(found)
@@ -173,14 +179,14 @@ export class AuthService {
   async activate_account(user: User) {
     console.log(user);
     const { _id: id } = user;
-    const _user = await this.user_service.update(id, { active: true });
+    const _user = await this.user_service.updateSimple(id, { active: true });
     return await this.makeCompleted(_user);
   }
   async reset_password(user: User, payload: UpdatePasswordDto) {
     console.log(user);
     const { _id: id } = user;
     const hash = argon.hash(payload.password);
-    const _user = await this.user_service.update(id, {
+    const _user = await this.user_service.updateSimple(id, {
       password: hash,
     });
     return await this.makeCompleted(_user);

@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
-import { UpdateContractDto } from './dto/update-contract.dto';
+import {
+  AddFileContractDto,
+  UpdateContractDto,
+} from './dto/update-contract.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Contract, ContractDocument } from './schemas/contract.schema';
 import { Model } from 'mongoose';
@@ -18,13 +21,13 @@ export class ContractService {
   async create(createContractDto: CreateContractDto, user: User) {
     const {
       provider_id,
-      category_id,
+      job_id,
       sub_category_id,
       files: filsMemory,
       ...result
     } = createContractDto;
     const sub_category = { _id: sub_category_id };
-    const category = { _id: category_id };
+    const job = { _id: job_id };
     const provider = { _id: provider_id };
     if (filsMemory) {
       const medias = filsMemory.map((file) => ({
@@ -48,32 +51,93 @@ export class ContractService {
           files,
           client: user,
           provider,
-          category,
+          job,
           sub_category,
-        }).populate(['client', 'provider', 'category', 'sub_category'])
+        }).populate(['client', 'provider', 'job', 'sub_category'])
       ).save();
     }
     return await new this.model({
       ...result,
       provider,
-      category,
+      job,
       sub_category,
     }).save();
   }
 
-  async findAll() {
-    return await this.model
-      .find()
-      .populate(['client', 'provider', 'category', 'sub_category'])
-      .exec();
+  async findAll(user: User, skip = 0, limit?: number) {
+    const { _id, role } = user;
+    const query =
+      role == 'Client' || role == 'Provider'
+        ? { [role.toLowerCase()]: { _id } }
+        : {};
+    const count = await this.model.countDocuments({}).exec();
+    const page_total = Math.floor((count - 1) / limit) + 1;
+    const _query = this.model
+      .find({ ...query })
+      .populate(['client', 'provider', 'job', 'sub_category'])
+      .skip(skip);
+    if (limit) {
+      _query.limit(limit);
+    }
+    const data = await _query.exec();
+    return {
+      data: data,
+      page_total: page_total,
+      status: 200,
+    };
   }
 
   async findOne(id: string) {
     return await this.model.findOne({ id }).exec();
   }
 
-  update(id: string, updateContratDto: UpdateContractDto) {
-    return this.model.findByIdAndUpdate(id, updateContratDto);
+  async update(id: string, updateContratDto: UpdateContractDto) {
+    const contract = await this.model.findOne({ _id: id }).exec();
+    if (!contract) {
+      return;
+    }
+    const { provider_id, job_id, sub_category_id, ...result } =
+      updateContratDto;
+    const sub_category = { _id: sub_category_id };
+    const job = { _id: job_id };
+    const provider = { _id: provider_id };
+
+    return await (
+      await this.model
+        .findByIdAndUpdate(id, {
+          ...result,
+          provider,
+          job,
+          sub_category,
+        })
+        .populate(['client', 'provider', 'job', 'sub_category'])
+    ).save();
+  }
+  async setFile(id: string, updateContratDto: AddFileContractDto) {
+    const contract = await this.model
+      .findOne({ _id: id })
+      .populate('files')
+      .exec();
+    const { files: filsMemory } = updateContratDto;
+    if (filsMemory) {
+      const medias = filsMemory.map((file) => ({
+        file: file,
+        forlder: 'contract',
+      }));
+      for (const media of medias) {
+        const filesMedia = await this.eventEmiter.emitAsync(
+          'Media.created',
+          media,
+        );
+        if (filesMedia.length == 1) {
+          contract.files.push(filesMedia[0]);
+        }
+      }
+      return this.model
+        .findByIdAndUpdate(id, { ...contract })
+        .populate(['client', 'provider', 'category', 'sub_category'])
+        .exec();
+    }
   }
 
   async remove(id: string) {

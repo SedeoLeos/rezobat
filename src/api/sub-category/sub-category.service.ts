@@ -17,8 +17,19 @@ export class SubCategoryService {
     return await new this.model({ ...createSubCategoryDto }).save();
   }
 
-  async findAll() {
-    return await this.model.find().populate('category').exec();
+  async findAll(skip = 0, limit?: number) {
+    const count = await this.model.countDocuments({}).exec();
+    const page_total = Math.floor((count - 1) / limit) + 1;
+    const query = this.model.find().skip(skip);
+    if (limit) {
+      query.limit(limit);
+    }
+    const data = await query.exec();
+    return {
+      data: data,
+      page_total: page_total,
+      status: 200,
+    };
   }
 
   async findOne(id: string) {

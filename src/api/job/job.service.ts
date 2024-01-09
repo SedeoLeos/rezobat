@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CreateJobDto } from './dto/create-job.dto';
+import { UpdateJobDto } from './dto/update-job.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Category, CategoryDocument } from './schema/category.schema';
+import { Job, JobDocument } from './schema/job.schema';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { isFile } from 'nestjs-form-data';
 
 @Injectable()
-export class CategoryService {
+export class JobService {
   constructor(
-    @InjectModel(Category.name) private model: Model<CategoryDocument>,
+    @InjectModel(Job.name) private model: Model<JobDocument>,
     private eventEmitter: EventEmitter2,
   ) {}
-  async create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateJobDto) {
     if (isFile(createCategoryDto.image)) {
       const imagePayload = await this.eventEmitter.emitAsync('Media.created', {
         file: createCategoryDto.image,
-        folder: 'category',
+        folder: 'job',
       });
       if (!imagePayload) {
         return;
@@ -57,9 +57,9 @@ export class CategoryService {
     };
   }
 
-  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+  async update(id: string, updateJobDto: UpdateJobDto) {
     const found = await this.model.findOne({ _id: id }).populate('image');
-    const { image: file } = updateCategoryDto;
+    const { image: file } = updateJobDto;
     const { image } = found;
     if (file && isFile(file) && image) {
       const imagePayload = await this.eventEmitter.emitAsync('Media.updated', {
@@ -70,13 +70,11 @@ export class CategoryService {
       if (!imagePayload && !imagePayload[0]) {
       }
       return await this.model
-        .findByIdAndUpdate(id, { ...updateCategoryDto, image: imagePayload[0] })
+        .findByIdAndUpdate(id, { ...updateJobDto, image: imagePayload[0] })
         .exec();
     }
-    delete updateCategoryDto.image;
-    return await this.model
-      .findByIdAndUpdate(id, { ...updateCategoryDto })
-      .exec();
+    delete updateJobDto.image;
+    return await this.model.findByIdAndUpdate(id, { ...updateJobDto }).exec();
   }
 
   async remove(id: string) {

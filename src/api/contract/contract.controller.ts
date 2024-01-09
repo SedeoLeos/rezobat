@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ContractService } from './contract.service';
 import { CreateContractDto } from './dto/create-contract.dto';
@@ -15,6 +16,7 @@ import { AbilitysEnum } from '../auth/tools/token.builder';
 import { FormDataRequest } from 'nestjs-form-data';
 import { CurrentUser } from 'src/core/decorators/current-user.decorators';
 import { User } from '../user/schemas/user.schema';
+import { PaginationParams } from 'src/core/pagination/page-option.dto';
 @Abilitys(AbilitysEnum.VERIFIED_OTP)
 @Controller('contract')
 export class ContractController {
@@ -30,8 +32,11 @@ export class ContractController {
   }
 
   @Get()
-  findAll() {
-    return this.contractService.findAll();
+  findAll(
+    @CurrentUser() user: User,
+    @Query() { limit, skip }: PaginationParams,
+  ) {
+    return this.contractService.findAll(user, skip, limit);
   }
 
   @Get(':id')

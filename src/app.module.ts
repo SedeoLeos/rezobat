@@ -15,6 +15,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 import { UniqueConstraintMongoose } from './core/decorators/unique.decorators';
 import { ExistConstraintMongoose } from './core/decorators/exist.decorators';
+import { JobModule } from './api/job/job.module';
 const DEFAULT_ADMIN = {
   email: 'admin@example.com',
   password: 'password',
@@ -73,6 +74,7 @@ const authenticate = async (email: string, password: string) => {
     ContractModule,
     CategoryModule,
     SubCategoryModule,
+    JobModule,
   ],
   controllers: [AppController],
   providers: [AppService, UniqueConstraintMongoose, ExistConstraintMongoose],

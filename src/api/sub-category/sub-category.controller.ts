@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { SubCategoryService } from './sub-category.service';
 import { CreateSubCategoryDto } from './dto/create-sub-category.dto';
 import { UpdateSubCategoryDto } from './dto/update-sub-category.dto';
 import { Public } from 'src/core/decorators/public.decorator';
+import { PaginationParams } from 'src/core/pagination/page-option.dto';
 
 @Public()
 @Controller('sub-category')
@@ -23,8 +25,8 @@ export class SubCategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.subCategoryService.findAll();
+  findAll(@Query() { limit, skip }: PaginationParams) {
+    return this.subCategoryService.findAll(skip, limit);
   }
 
   @Get(':id')
