@@ -37,7 +37,7 @@ export class UserController {
     }
     throw new BadRequestException(UserCRUDMessage.CREATE_ERROR);
   }
-
+  @Public()
   @Get()
   findAll(@Query() { limit, skip }: PaginationParams) {
     return this.userService.findAll(skip, limit);
