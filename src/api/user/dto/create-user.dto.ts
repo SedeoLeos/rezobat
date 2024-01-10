@@ -12,13 +12,13 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsUniqueMongoose('User', 'phone')
+  @IsUniqueMongoose('User', 'phone', { dbField: '_id', dtoField: 'id' })
   phone: string;
 
   @IsString()
   @IsEmail()
   @IsNotEmpty()
-  @IsUniqueMongoose('User', 'email')
+  @IsUniqueMongoose('User', 'email', { dbField: '_id', dtoField: 'id' })
   email: string;
   @IsString()
   @IsNotEmpty()

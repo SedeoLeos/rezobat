@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as ShemaMongoose } from 'mongoose';
-import { User } from './../../../api/user/schemas/user.schema.js';
+import { User } from 'src/api/user/schemas/user.schema';
+import { SchemaProp } from 'src/core/constants';
 export type OTPDocument = HydratedDocument<OTP>;
-@Schema({ timestamps: true })
+@Schema(SchemaProp)
 export class OTP {
   @Prop()
   value: string;

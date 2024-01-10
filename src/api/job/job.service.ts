@@ -14,7 +14,9 @@ export class JobService {
     private eventEmitter: EventEmitter2,
   ) {}
   async create(createCategoryDto: CreateJobDto) {
-    if (isFile(createCategoryDto.image)) {
+    console.log('ÄÄÄÄÄÄ', isFile(createCategoryDto.image));
+    if (createCategoryDto.image) {
+      console.log('ÄÄÄÄÄÄ');
       const imagePayload = await this.eventEmitter.emitAsync('Media.created', {
         file: createCategoryDto.image,
         folder: 'job',
@@ -22,10 +24,13 @@ export class JobService {
       if (!imagePayload) {
         return;
       }
-      return await new this.model({
-        ...createCategoryDto,
-        image: imagePayload[0],
-      }).save();
+      console.log(imagePayload);
+      return await (
+        await new this.model({
+          ...createCategoryDto,
+          image: imagePayload[0],
+        }).populate('image')
+      ).save();
     }
     delete createCategoryDto.image;
     return await new this.model({
@@ -36,7 +41,7 @@ export class JobService {
   async findAll(skip = 0, limit?: number) {
     const count = await this.model.countDocuments({}).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;
-    const query = this.model.find().skip(skip);
+    const query = this.model.find().populate('image').skip(skip);
     if (limit) {
       query.limit(limit);
     }
@@ -49,7 +54,7 @@ export class JobService {
   }
 
   async findOne(id: string) {
-    return await this.model.findOne({ _id: id }).exec();
+    return await this.model.findOne({ _id: id }).populate('image').exec();
   }
 
   async update(id: string, updateJobDto: UpdateJobDto) {
@@ -73,6 +78,6 @@ export class JobService {
   }
 
   async remove(id: string) {
-    return await this.model.findByIdAndDelete(id);
+    return await this.model.findByIdAndDelete(id).populate('image').exec();
   }
 }

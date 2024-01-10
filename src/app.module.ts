@@ -14,7 +14,7 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
 import { UniqueConstraintMongoose } from './core/decorators/unique.decorators';
 import { ExistConstraintMongoose } from './core/decorators/exist.decorators';
 import { JobModule } from './api/job/job.module';
-import { ContratTypeModule } from './api/contrat-type/contrat-type.module';
+import { ContractTypeModule } from './api/contrat-type/contract-type.module';
 
 @Module({
   imports: [
@@ -36,7 +36,7 @@ import { ContratTypeModule } from './api/contrat-type/contrat-type.module';
     MediaModule,
     ContractModule,
     JobModule,
-    ContratTypeModule,
+    ContractTypeModule,
   ],
   controllers: [AppController],
   providers: [AppService, UniqueConstraintMongoose, ExistConstraintMongoose],

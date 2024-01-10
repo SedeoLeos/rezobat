@@ -1,4 +1,4 @@
-export enum ContratTypeCRUDMessage {
+export enum ContractTypeCRUDMessage {
   // Créer
   CREATE_SUCCESS = 'Type préstation créé avec succès.',
   CREATE_ERROR = 'Erreur lors de la création du type de préstation.',

@@ -3,9 +3,10 @@ import { Document, HydratedDocument, Schema as SchemaType } from 'mongoose';
 
 import { Job } from 'src/api/job/schema/job.schema';
 import { Media } from 'src/api/media/schemas/media.schema';
+import { SchemaProp } from 'src/core/constants';
 
 export type UserDocument = HydratedDocument<User>;
-@Schema({ timestamps: true })
+@Schema(SchemaProp)
 export class User extends Document {
   @Prop()
   first_name: string;

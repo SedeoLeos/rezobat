@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { CreateContratTypeDto } from './dto/create-contrat-type.dto';
-import { UpdateContratTypeDto } from './dto/update-contrat-type.dto';
+import { CreateContractTypeDto } from './dto/create-contrat-type.dto';
+import { UpdateContractTypeDto } from './dto/update-contrat-type.dto';
 import {
-  ContratType,
-  ContrattypeDocument,
-} from './schemas/contrat-type.schema';
+  ContractType,
+  ContracttypeDocument,
+} from './schemas/contract-type.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
-export class ContratTypeService {
+export class ContractTypeService {
   constructor(
-    @InjectModel(ContratType.name) private model: Model<ContrattypeDocument>,
+    @InjectModel(ContractType.name) private model: Model<ContracttypeDocument>,
   ) {}
-  async create(createContratTypeDto: CreateContratTypeDto) {
-    return await new this.model({ ...createContratTypeDto }).save();
+  async create(createContractTypeDto: CreateContractTypeDto) {
+    return await new this.model({ ...createContractTypeDto }).save();
   }
 
   async findAll(skip = 0, limit?: number) {
@@ -36,8 +36,8 @@ export class ContratTypeService {
     return await this.model.findOne({ id }).exec();
   }
 
-  async update(id: string, updateSContratTypeDto: UpdateContratTypeDto) {
-    return await this.model.findByIdAndUpdate(id, { ...updateSContratTypeDto });
+  async update(id: string, updateContractTypeDto: UpdateContractTypeDto) {
+    return await this.model.findByIdAndUpdate(id, { ...updateContractTypeDto });
   }
 
   async remove(id: string) {

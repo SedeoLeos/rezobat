@@ -20,6 +20,7 @@ export class MediaService {
         createMediaDto.file,
         createMediaDto.folder,
       );
+      console.log(data);
       return await new this.model({ ...data }).save();
     } catch {
       return;

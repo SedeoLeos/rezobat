@@ -19,6 +19,7 @@ import {
 } from 'src/core/pagination/page-option.dto';
 import { UserCRUDMessage } from './message/user.message';
 import { Public } from 'src/core/decorators/public.decorator';
+import { InjectPkToBody } from 'src/core/validator/decorators';
 
 @Controller('user')
 export class UserController {
@@ -61,6 +62,7 @@ export class UserController {
   }
 
   @Patch(':id')
+  @InjectPkToBody({ dtoField: 'id', paramsName: 'id' })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const user = await this.userService.update(id, updateUserDto);
     if (user) {

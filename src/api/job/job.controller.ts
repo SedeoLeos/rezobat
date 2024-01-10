@@ -15,13 +15,19 @@ import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { JobCRUDMessage } from './message/contrat-type.message';
 import { PaginationParams } from 'src/core/pagination/page-option.dto';
+import { Public } from 'src/core/decorators/public.decorator';
+import { FormDataRequest } from 'nestjs-form-data';
+import { InjectPkToBody } from 'src/core/validator/decorators';
 
 @Controller('job')
+@Public()
 export class JobController {
   constructor(private readonly jobService: JobService) {}
 
   @Post()
+  @FormDataRequest()
   async create(@Body() createJobDto: CreateJobDto) {
+    console.log(createJobDto);
     const job = await this.jobService.create(createJobDto);
     if (job) {
       return {
@@ -52,6 +58,7 @@ export class JobController {
   }
 
   @Patch(':id')
+  @InjectPkToBody({ dtoField: 'id', paramsName: 'id' })
   async update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
     const job = await this.jobService.update(id, updateJobDto);
     if (job) {

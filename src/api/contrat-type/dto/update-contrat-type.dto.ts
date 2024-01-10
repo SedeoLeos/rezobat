@@ -1,4 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateContratTypeDto } from './create-contrat-type.dto';
+import { CreateContractTypeDto } from './create-contrat-type.dto';
 
-export class UpdateContratTypeDto extends PartialType(CreateContratTypeDto) {}
+export class UpdateContractTypeDto extends PartialType(CreateContractTypeDto) {
+  id: string;
+}
