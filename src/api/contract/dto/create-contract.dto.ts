@@ -40,3 +40,47 @@ export class CreateContractDto {
   @IsFiles()
   files: MemoryStoredFile[];
 }
+export class CreateContractAdminDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsOptional()
+  description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  @IsExistMongoose('Job', '_id')
+  job_id: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  @IsExistMongoose('ContratType', '_id')
+  type_id: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  @IsExistMongoose('User', '_id')
+  provider_id: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  @IsExistMongoose('User', '_id')
+  client_id: string;
+
+  @IsFiles()
+  files: MemoryStoredFile[];
+}

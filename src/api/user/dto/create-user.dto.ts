@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsFile, MemoryStoredFile } from 'nestjs-form-data';
 import { IsUniqueMongoose } from 'src/core/decorators/unique.decorators';
 
 export class CreateUserDto {
@@ -22,5 +23,8 @@ export class CreateUserDto {
   email: string;
   @IsString()
   @IsNotEmpty()
-  role: 'Admin' | 'Provider';
+  role: 'Admin' | 'Provider' | 'Client';
+
+  @IsFile()
+  photo: MemoryStoredFile;
 }

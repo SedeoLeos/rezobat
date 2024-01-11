@@ -31,6 +31,7 @@ export class AuthService {
   }
   async signIn(login_dto: LoginDto) {
     const user = await this.validateUser(login_dto);
+    console.log(login_dto, user);
     if (!user)
       throw new HttpException(
         'utilisateur introuvable',
@@ -41,7 +42,10 @@ export class AuthService {
         'mot de passe incorrect',
         HttpStatus.UNAUTHORIZED,
       );
-    const isMatch = await argon.verify(user.password, login_dto.password);
+    let isMatch = false;
+    try {
+      isMatch = await argon.verify(user.password, login_dto.password);
+    } catch (e) {}
 
     if (!isMatch)
       throw new HttpException('password incorrect', HttpStatus.UNAUTHORIZED);
@@ -174,7 +178,7 @@ export class AuthService {
 
   async makeCompleted(user: User) {
     const tokenbuilder = new TokenBuilder<User>();
-    tokenbuilder.setUser(user.toJSON());
+    tokenbuilder.setUser(user);
     if (user.isAdmin) {
       tokenbuilder.addAbilitys('ADMIN');
     }

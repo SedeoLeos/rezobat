@@ -11,7 +11,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ContractService } from './contract.service';
-import { CreateContractDto } from './dto/create-contract.dto';
+import {
+  CreateContractAdminDto,
+  CreateContractDto,
+} from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { Abilitys } from 'src/core/decorators/public.decorator';
 import { AbilitysEnum } from '../auth/tools/token.builder';
@@ -32,6 +35,19 @@ export class ContractController {
     @CurrentUser() user: User,
   ) {
     const contrat = await this.contractService.create(createContractDto, user);
+    if (contrat) {
+      return {
+        message: ContratCRUDMessage.CREATE_SUCCESS,
+        entity: contrat,
+        status: 201,
+      };
+    }
+    throw new BadRequestException(ContratCRUDMessage.CREATE_ERROR);
+  }
+  @Post('admin/')
+  @FormDataRequest()
+  async createAdmin(@Body() createContractDto: CreateContractAdminDto) {
+    const contrat = await this.contractService.createAdmin(createContractDto);
     if (contrat) {
       return {
         message: ContratCRUDMessage.CREATE_SUCCESS,

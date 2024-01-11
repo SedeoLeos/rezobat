@@ -20,12 +20,14 @@ import {
 import { UserCRUDMessage } from './message/user.message';
 import { Public } from 'src/core/decorators/public.decorator';
 import { InjectPkToBody } from 'src/core/validator/decorators';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @FormDataRequest()
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.userService.create(createUserDto);
     if (user) {

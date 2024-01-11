@@ -27,6 +27,7 @@ export class JwtTokenService {
     @InjectModel(Token.name) private model: Model<TokenDocument>,
   ) {}
   async generateTokens(payload: TokenBuilder<User>, option?: OptionToken) {
+    const USER = payload.data.user;
     if (!option) {
       option = {
         refresh: true,
@@ -64,7 +65,7 @@ export class JwtTokenService {
       const { _id: id } = await this.model
         .findByIdAndUpdate(tokenId, {
           refreshToken: hash,
-          user: user,
+          user: USER,
         })
         .exec();
 
@@ -77,7 +78,7 @@ export class JwtTokenService {
     }
     const { _id: id } = await new this.model({
       refreshToken: hash,
-      user: user,
+      user: USER,
     }).save();
 
     return {

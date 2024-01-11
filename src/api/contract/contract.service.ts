@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateContractDto } from './dto/create-contract.dto';
+import {
+  CreateContractAdminDto,
+  CreateContractDto,
+} from './dto/create-contract.dto';
 import {
   AddFileContractDto,
   UpdateContractDto,
@@ -50,6 +53,53 @@ export class ContractService {
           ...result,
           files,
           client: user,
+          provider,
+          job,
+          type,
+        }).populate(['client', 'provider', 'job', 'type'])
+      ).save();
+    }
+    return await new this.model({
+      ...result,
+      provider,
+      job,
+      type,
+    }).save();
+  }
+  async createAdmin(createContractDto: CreateContractAdminDto) {
+    const {
+      provider_id,
+      client_id,
+      job_id,
+      type_id,
+      files: filsMemory,
+      ...result
+    } = createContractDto;
+    const type = { _id: type_id };
+    const job = { _id: job_id };
+    const provider = { _id: provider_id };
+    const client = client_id ? { _id: client_id } : {};
+    if (filsMemory) {
+      const medias = filsMemory.map((file) => ({
+        file: file,
+        forlder: 'contract',
+      }));
+      const files: Media[] = [];
+      for (const media of medias) {
+        const filesMedia = await this.eventEmiter.emitAsync(
+          'Media.created',
+          media,
+        );
+        if (filesMedia.length == 1) {
+          files.push(filesMedia[0]);
+        }
+      }
+
+      return await (
+        await new this.model({
+          ...result,
+          files,
+          client: client,
           provider,
           job,
           type,

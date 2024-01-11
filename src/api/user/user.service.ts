@@ -8,6 +8,7 @@ import { RegisterDto } from '../auth/dto/register.dto';
 import { MailService } from 'src/core/mail/mail.service';
 import * as argon from 'argon2';
 import { randomBytes } from 'crypto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 const generatePassword = async (length: number): Promise<string> => {
   if (length < 1) {
     throw new Error('Length must be greater than 0');
@@ -41,15 +42,26 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly model: Model<UserDocument>,
     private mail_service: MailService,
+    private eventEmitter: EventEmitter2,
   ) {}
   async create(createUserDto: CreateUserDto) {
+    const { photo, ...result } = createUserDto;
     try {
       const password = await generatePassword(8);
-      const hash = argon.hash(password);
+      const hash = await argon.hash(password);
+      let addPhoto = {};
+      const newphoto = await this.eventEmitter.emitAsync('Media.created', {
+        file: photo,
+        folder: 'user/',
+      });
+      if (newphoto && newphoto.length > 1) {
+        addPhoto = { photo: newphoto[0] };
+      }
       const user = await new this.model({
-        ...createUserDto,
+        ...result,
         password: hash,
         active: true,
+        ...addPhoto,
       }).save();
       await this.mail_service.create(user, password, user.email);
       return user;
