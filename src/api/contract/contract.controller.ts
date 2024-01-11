@@ -16,14 +16,13 @@ import {
   CreateContractDto,
 } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
-import { Abilitys } from 'src/core/decorators/public.decorator';
-import { AbilitysEnum } from '../auth/tools/token.builder';
+
 import { FormDataRequest } from 'nestjs-form-data';
 import { CurrentUser } from 'src/core/decorators/current-user.decorators';
 import { User } from '../user/schemas/user.schema';
 import { PaginationParams } from 'src/core/pagination/page-option.dto';
 import { ContratCRUDMessage } from './message/contrat.message';
-@Abilitys(AbilitysEnum.VERIFIED_OTP)
+
 @Controller('contract')
 export class ContractController {
   constructor(private readonly contractService: ContractService) {}

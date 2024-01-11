@@ -13,7 +13,7 @@ import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from '../user/schemas/user.schema';
 import { Media } from '../media/schemas/media.schema';
-
+const POPULATE = ['client', 'provider', 'job', 'type'];
 @Injectable()
 export class ContractService {
   constructor(
@@ -56,7 +56,7 @@ export class ContractService {
           provider,
           job,
           type,
-        }).populate(['client', 'provider', 'job', 'type'])
+        }).populate(POPULATE)
       ).save();
     }
     return await new this.model({
@@ -103,7 +103,7 @@ export class ContractService {
           provider,
           job,
           type,
-        }).populate(['client', 'provider', 'job', 'type'])
+        }).populate(POPULATE)
       ).save();
     }
     return await new this.model({
@@ -124,7 +124,7 @@ export class ContractService {
     const page_total = Math.floor((count - 1) / limit) + 1;
     const _query = this.model
       .find({ ...query })
-      .populate(['client', 'provider', 'job', 'sub_category'])
+      .populate(POPULATE)
       .skip(skip);
     if (limit) {
       _query.limit(limit);
@@ -159,7 +159,7 @@ export class ContractService {
           job,
           type,
         })
-        .populate(['client', 'provider', 'job', 'sub_category'])
+        .populate(POPULATE)
     ).save();
   }
   async setFile(id: string, updateContratDto: AddFileContractDto) {
@@ -184,7 +184,7 @@ export class ContractService {
       }
       return this.model
         .findByIdAndUpdate(id, { ...contract })
-        .populate(['client', 'provider', 'category', 'sub_category'])
+        .populate(POPULATE)
         .exec();
     }
   }
