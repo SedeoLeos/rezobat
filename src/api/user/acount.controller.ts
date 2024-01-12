@@ -40,7 +40,7 @@ export class AccountController {
   profile(@CurrentUser() user: User) {
     return user;
   }
-  @Abilitys(AbilitysEnum.ACTIVE_USER, AbilitysEnum.DEFAULT_ABILITYS)
+  @Abilitys(AbilitysEnum.DEFAULT_ABILITYS)
   @Post('update-password')
   async updatePassword(
     @CurrentUser() user: User,
@@ -50,7 +50,25 @@ export class AccountController {
     const _user = await this.accountService.updatePassword(
       id,
       payload.password,
+      payload.oldpassword,
     );
+    if (_user) {
+      return {
+        message: AccountCRUDMessage.PASSWORD_SUCCESS,
+        entity: _user,
+        status: 201,
+      };
+    }
+    throw new BadRequestException(AccountCRUDMessage.PASSWORD_ERROR);
+  }
+  @Abilitys(AbilitysEnum.UPDATE_PASSWORD)
+  @Post('reset-password')
+  async resetPassword(
+    @CurrentUser() user: User,
+    @Body() payload: UpdatePasswordDto,
+  ) {
+    const { _id: id } = user;
+    const _user = await this.accountService.resetPassword(id, payload.password);
     if (_user) {
       return {
         message: AccountCRUDMessage.PASSWORD_SUCCESS,

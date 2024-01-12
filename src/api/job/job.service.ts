@@ -15,26 +15,20 @@ export class JobService {
   ) {}
   async create(createCategoryDto: CreateJobDto) {
     console.log('ÄÄÄÄÄÄ', isFile(createCategoryDto.image));
-    if (createCategoryDto.image) {
-      console.log('ÄÄÄÄÄÄ');
+    const { image: file, ...result } = createCategoryDto;
+    let categoryField: Record<string, any> = { ...result };
+    if (file) {
       const imagePayload = await this.eventEmitter.emitAsync('Media.created', {
         file: createCategoryDto.image,
         folder: 'job',
       });
-      if (!imagePayload) {
-        return;
-      }
-      console.log(imagePayload);
-      return await (
-        await new this.model({
-          ...createCategoryDto,
-          image: imagePayload[0],
-        }).populate('image')
-      ).save();
+      categoryField =
+        imagePayload && imagePayload.length > 0
+          ? { ...categoryField, photo: imagePayload[0] }
+          : categoryField;
     }
-    delete createCategoryDto.image;
     return await new this.model({
-      ...createCategoryDto,
+      ...categoryField,
     }).save();
   }
 
@@ -59,22 +53,27 @@ export class JobService {
 
   async update(id: string, updateJobDto: UpdateJobDto) {
     const found = await this.model.findOne({ _id: id }).populate('image');
-    const { image: file } = updateJobDto;
+    delete updateJobDto.id;
+    const { image: file, ...result } = updateJobDto;
     const { image } = found;
-    if (file && isFile(file) && image) {
-      const imagePayload = await this.eventEmitter.emitAsync('Media.updated', {
-        old: image,
-        file,
-        folder: 'category',
-      });
-      if (!imagePayload && !imagePayload[0]) {
-      }
-      return await this.model
-        .findByIdAndUpdate(id, { ...updateJobDto, image: imagePayload[0] })
-        .exec();
+    let categoryField: Record<string, any> = { ...result };
+    if (file) {
+      const imagePayload = image
+        ? await this.eventEmitter.emitAsync('Media.updated', {
+            old: image,
+            file,
+            folder: 'job',
+          })
+        : await this.eventEmitter.emitAsync('Media.created', {
+            file,
+            folder: 'job',
+          });
+      categoryField =
+        imagePayload && imagePayload.length > 0
+          ? { ...categoryField, photo: imagePayload[0] }
+          : categoryField;
     }
-    delete updateJobDto.image;
-    return await this.model.findByIdAndUpdate(id, { ...updateJobDto }).exec();
+    return await this.model.findByIdAndUpdate(id, { ...categoryField }).exec();
   }
 
   async remove(id: string) {

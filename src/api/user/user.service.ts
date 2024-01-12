@@ -9,6 +9,7 @@ import { MailService } from 'src/core/mail/mail.service';
 import * as argon from 'argon2';
 import { randomBytes } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
 const generatePassword = async (length: number): Promise<string> => {
   if (length < 1) {
     throw new Error('Length must be greater than 0');
@@ -45,23 +46,29 @@ export class UserService {
     private eventEmitter: EventEmitter2,
   ) {}
   async create(createUserDto: CreateUserDto) {
-    const { photo, ...result } = createUserDto;
+    const { photo: file, ...result } = createUserDto;
     try {
       const password = await generatePassword(8);
       const hash = await argon.hash(password);
-      let addPhoto = {};
-      const newphoto = await this.eventEmitter.emitAsync('Media.created', {
-        file: photo,
-        folder: 'user/',
-      });
-      if (newphoto && newphoto.length > 1) {
-        addPhoto = { photo: newphoto[0] };
+
+      let userFields: Record<string, any> = { ...result };
+      // Check if a file is present
+      if (file) {
+        const newPhoto = await this.eventEmitter.emitAsync('Media.created', {
+          file,
+          folder: 'user/',
+        });
+
+        // If new photo is created, update userFields
+        userFields =
+          newPhoto && newPhoto.length > 0
+            ? { ...userFields, photo: newPhoto[0] }
+            : userFields;
       }
       const user = await new this.model({
-        ...result,
+        ...userFields,
         password: hash,
         active: true,
-        ...addPhoto,
       }).save();
       await this.mail_service.create(user, password, user.email);
       return user;
@@ -107,11 +114,36 @@ export class UserService {
     return await this.model.findOne({ id });
   }
   async findBy(email: string) {
-    return await this.model.findOne({ email });
+    return await this.model.findOne({ email }).exec();
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    return await this.model.findByIdAndUpdate(id, updateUserDto).exec();
+    delete updateUserDto.id;
+    const { photo: file, ...partialUser } = updateUserDto;
+    const user = await this.model.findOne({ _id: id }).populate('photo').exec();
+    if (!user) {
+      return;
+    }
+    let updateFields: Record<string, any> = { ...partialUser };
+    // Check if a file is present
+    if (file) {
+      // Determine whether to update or create media
+      const imagePayload = user.photo
+        ? await this.eventEmitter.emitAsync('Media.updated', {
+            old: user.photo,
+            file,
+            folder: 'user',
+          })
+        : await this.eventEmitter.emitAsync('Media.created', {
+            file,
+            folder: 'user',
+          });
+      updateFields =
+        imagePayload && imagePayload.length > 0
+          ? { ...updateFields, photo: imagePayload[0] }
+          : updateFields;
+    }
+    return await this.model.findByIdAndUpdate(id, { ...updateFields }).exec();
   }
   async updateSimple(id: string, updateUserDto: { [x: string]: any }) {
     return await this.model.findByIdAndUpdate(id, updateUserDto).exec();

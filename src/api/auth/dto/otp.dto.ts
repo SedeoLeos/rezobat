@@ -40,4 +40,15 @@ export class UpdatePasswordDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+  @IsString()
+  @IsNotEmpty()
+  cpassword: string;
+  @IsString()
+  @IsNotEmpty()
+  oldpassword: string;
+}
+export class ResetPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 }

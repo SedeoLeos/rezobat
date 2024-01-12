@@ -10,6 +10,9 @@ export enum ContratCRUDMessage {
   // Mettre à jour
   UPDATE_SUCCESS = 'Contrat mis à jour avec succès.',
   UPDATE_ERROR = 'Erreur lors de la mise à jour du contrat.',
+  // Mettre à jour
+  STATUS_SUCCESS = 'Statut du contrat mis à jour avec succès.',
+  STATUS_ERROR = 'Erreur lors de la mise à jour du statut.',
 
   // Supprimer
   DELETE_SUCCESS = 'Contrat supprimé avec succès.',

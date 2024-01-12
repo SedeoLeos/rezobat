@@ -6,6 +6,7 @@ import {
 import {
   AddFileContractDto,
   UpdateContractDto,
+  UpdateContractStatusDto,
 } from './dto/update-contract.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Contract, ContractDocument } from './schemas/contract.schema';
@@ -113,6 +114,53 @@ export class ContractService {
       type,
     }).save();
   }
+  async updateAdmin(createContractDto: CreateContractAdminDto) {
+    const {
+      provider_id,
+      client_id,
+      job_id,
+      type_id,
+      files: filsMemory,
+      ...result
+    } = createContractDto;
+    const type = { _id: type_id };
+    const job = { _id: job_id };
+    const provider = { _id: provider_id };
+    const client = client_id ? { _id: client_id } : {};
+    if (filsMemory) {
+      const medias = filsMemory.map((file) => ({
+        file: file,
+        forlder: 'contract',
+      }));
+      const files: Media[] = [];
+      for (const media of medias) {
+        const filesMedia = await this.eventEmiter.emitAsync(
+          'Media.created',
+          media,
+        );
+        if (filesMedia.length == 1) {
+          files.push(filesMedia[0]);
+        }
+      }
+
+      return await (
+        await new this.model({
+          ...result,
+          files,
+          client: client,
+          provider,
+          job,
+          type,
+        }).populate(POPULATE)
+      ).save();
+    }
+    return await new this.model({
+      ...result,
+      provider,
+      job,
+      type,
+    }).save();
+  }
 
   async findAll(user: User, skip = 0, limit?: number) {
     const { _id, role } = user;
@@ -158,6 +206,29 @@ export class ContractService {
           provider,
           job,
           type,
+        })
+        .populate(POPULATE)
+    ).save();
+  }
+  async statusUpdate(
+    id: string,
+    updateContratStatusDto: UpdateContractStatusDto,
+  ) {
+    const contract = await this.model
+      .findOne({ _id: id })
+      .populate(POPULATE)
+      .exec();
+    if (!contract) {
+      return;
+    }
+    const { status } = updateContratStatusDto;
+    if (status == contract.status) {
+      return contract;
+    }
+    return await (
+      await this.model
+        .findByIdAndUpdate(id, {
+          status,
         })
         .populate(POPULATE)
     ).save();

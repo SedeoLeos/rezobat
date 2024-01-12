@@ -26,5 +26,6 @@ export class CreateUserDto {
   role: 'Admin' | 'Provider' | 'Client';
 
   @IsFile()
-  photo: MemoryStoredFile;
+  @IsOptional()
+  photo?: MemoryStoredFile;
 }

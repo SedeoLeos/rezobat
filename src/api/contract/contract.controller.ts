@@ -15,7 +15,10 @@ import {
   CreateContractAdminDto,
   CreateContractDto,
 } from './dto/create-contract.dto';
-import { UpdateContractDto } from './dto/update-contract.dto';
+import {
+  UpdateContractDto,
+  UpdateContractStatusDto,
+} from './dto/update-contract.dto';
 
 import { FormDataRequest } from 'nestjs-form-data';
 import { CurrentUser } from 'src/core/decorators/current-user.decorators';
@@ -46,6 +49,19 @@ export class ContractController {
   @Post('admin/')
   @FormDataRequest()
   async createAdmin(@Body() createContractDto: CreateContractAdminDto) {
+    const contrat = await this.contractService.createAdmin(createContractDto);
+    if (contrat) {
+      return {
+        message: ContratCRUDMessage.CREATE_SUCCESS,
+        entity: contrat,
+        status: 201,
+      };
+    }
+    throw new BadRequestException(ContratCRUDMessage.CREATE_ERROR);
+  }
+  @Patch('admin/')
+  @FormDataRequest()
+  async updateAdmin(@Body() createContractDto: CreateContractAdminDto) {
     const contrat = await this.contractService.createAdmin(createContractDto);
     if (contrat) {
       return {
@@ -92,6 +108,24 @@ export class ContractController {
       };
     }
     throw new NotFoundException(ContratCRUDMessage.UPDATE_ERROR);
+  }
+  @Patch(':id/status')
+  async statusUpdate(
+    @Param('id') id: string,
+    @Body() updateContractStatusDto: UpdateContractStatusDto,
+  ) {
+    const contrat = await this.contractService.statusUpdate(
+      id,
+      updateContractStatusDto,
+    );
+    if (contrat) {
+      return {
+        message: ContratCRUDMessage.STATUS_SUCCESS,
+        entity: contrat,
+        status: 201,
+      };
+    }
+    throw new NotFoundException(ContratCRUDMessage.STATUS_ERROR);
   }
 
   @Delete(':id')

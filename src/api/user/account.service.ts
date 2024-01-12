@@ -27,10 +27,23 @@ export class AccountService {
       return null;
     }
   }
-  async updatePassword(user: User, value: string) {
+  async resetPassword(user: User, value: string) {
     try {
       const password = await argon.hash(value);
       return await this.model.findOneAndUpdate(user._id, { password });
+    } catch (e) {
+      return null;
+    }
+  }
+  async updatePassword(user: User, value: string, old: string) {
+    try {
+      const _user = await this.model.findOne(user._id);
+      const isMatch = await argon.verify(_user.password, old);
+      if (isMatch) {
+        const password = await argon.hash(value);
+        return await this.model.findOneAndUpdate(user._id, { password });
+      }
+      return;
     } catch (e) {
       return null;
     }

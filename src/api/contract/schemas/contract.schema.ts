@@ -5,11 +5,13 @@ import { Job } from 'src/api/job/schema/job.schema';
 import { Media } from 'src/api/media/schemas/media.schema';
 import { User } from 'src/api/user/schemas/user.schema';
 import { SchemaProp } from 'src/core/constants';
-export type StatusContract =
-  | 'En attends de traitement'
-  | 'En Cours'
-  | 'Terminer'
-  | 'Annuler';
+export const statusContractArray = [
+  'En attends de traitement',
+  'En Cours',
+  'Terminer',
+  'Annuler',
+] as const;
+export type StatusContract = (typeof statusContractArray)[number];
 export type ContractDocument = HydratedDocument<Contract>;
 @Schema(SchemaProp)
 export class Contract extends Document {
@@ -32,8 +34,8 @@ export class Contract extends Document {
   @Prop()
   email: string;
   @Prop({
-    enum: ['En attends de traitement', 'En Cours', 'Terminer', 'Annuler'],
-    default: 'En attends de traitement',
+    enum: statusContractArray,
+    default: statusContractArray[0],
   })
   status: StatusContract;
 }
