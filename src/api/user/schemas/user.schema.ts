@@ -4,7 +4,8 @@ import { Document, HydratedDocument, Schema as SchemaType } from 'mongoose';
 import { Job } from 'src/api/job/schema/job.schema';
 import { Media } from 'src/api/media/schemas/media.schema';
 import { SchemaProp } from 'src/core/constants';
-
+export const arrayRole = ['Client', 'Provider', 'Admin'] as const;
+export type RoleEnum = (typeof arrayRole)[number];
 export type UserDocument = HydratedDocument<User>;
 @Schema(SchemaProp)
 export class User extends Document {
@@ -18,8 +19,8 @@ export class User extends Document {
   email: string;
   @Prop({ required: true })
   password: string;
-  @Prop({ enum: ['Provider', 'Client', 'Admin'], default: 'Client' })
-  role: string;
+  @Prop({ enum: arrayRole, default: arrayRole[0] })
+  role: RoleEnum;
   @Prop({ default: false })
   active: boolean;
   @Prop({ default: false })

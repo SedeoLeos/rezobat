@@ -42,10 +42,7 @@ export class UpdatePasswordDto {
   password: string;
   @IsString()
   @IsNotEmpty()
-  cpassword: string;
-  @IsString()
-  @IsNotEmpty()
-  oldpassword: string;
+  oldPassword: string;
 }
 export class ResetPasswordDto {
   @IsString()

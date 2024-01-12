@@ -1,6 +1,15 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 import { IsFile, MemoryStoredFile } from 'nestjs-form-data';
 import { IsUniqueMongoose } from 'src/core/decorators/unique.decorators';
+import { RoleEnum } from '../schemas/user.schema';
+import { Type } from 'class-transformer';
 
 export class CreateUserDto {
   @IsOptional()
@@ -23,9 +32,14 @@ export class CreateUserDto {
   email: string;
   @IsString()
   @IsNotEmpty()
-  role: 'Admin' | 'Provider' | 'Client';
+  role: RoleEnum;
 
   @IsFile()
   @IsOptional()
   photo?: MemoryStoredFile;
+  @ValidateIf((dto: CreateUserDto) => dto.role == 'Provider')
+  @IsOptional()
+  @IsArray()
+  @Type(() => Array)
+  jobs: string[];
 }
