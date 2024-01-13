@@ -32,10 +32,12 @@ export class UniqueConstraintMongoose implements ValidatorConstraintInterface {
     if (!dtoField) {
       dtoField = dbField;
     }
+    console.log(dbField, dtoField, object);
     if (dbField && dtoField) {
       if (object[dtoField]) {
         where[dbField] = { $ne: object[dtoField] };
       }
+      console.log(where);
     }
 
     try {

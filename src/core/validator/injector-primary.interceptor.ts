@@ -21,8 +21,9 @@ export class InjectUserInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
 
     if (this.type && request[this.type]) {
-      request[this.type][this.input.dtoField] =
+      request[this.type][this.input.paramsName] =
         request.params[this.input.paramsName];
+      console.log('?????', request[this.type]);
     }
     return next.handle();
   }

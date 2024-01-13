@@ -24,12 +24,14 @@ export class JobService {
       });
       categoryField =
         imagePayload && imagePayload.length > 0
-          ? { ...categoryField, photo: imagePayload[0] }
+          ? { ...categoryField, image: imagePayload[0] }
           : categoryField;
     }
-    return await new this.model({
-      ...categoryField,
-    }).save();
+    return await (
+      await new this.model({
+        ...categoryField,
+      }).populate('image')
+    ).save();
   }
 
   async findAll(skip = 0, limit?: number) {
@@ -53,6 +55,8 @@ export class JobService {
 
   async update(id: string, updateJobDto: UpdateJobDto) {
     const found = await this.model.findOne({ _id: id }).populate('image');
+    if (!found) return;
+    console.log(updateJobDto);
     delete updateJobDto.id;
     const { image: file, ...result } = updateJobDto;
     const { image } = found;
@@ -70,10 +74,13 @@ export class JobService {
           });
       categoryField =
         imagePayload && imagePayload.length > 0
-          ? { ...categoryField, photo: imagePayload[0] }
+          ? { ...categoryField, image: imagePayload[0] }
           : categoryField;
     }
-    return await this.model.findByIdAndUpdate(id, { ...categoryField }).exec();
+    return await this.model
+      .findByIdAndUpdate(id, { ...categoryField })
+      .populate('image')
+      .exec();
   }
 
   async remove(id: string) {

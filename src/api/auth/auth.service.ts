@@ -31,29 +31,35 @@ export class AuthService {
   }
   async signIn(login_dto: LoginDto) {
     const user = await this.validateUser(login_dto);
-    console.log(login_dto, user);
-    if (!user)
+    if (!user) {
+      throw new HttpException('Utilisateur introuvable', HttpStatus.NOT_FOUND);
+    }
+
+    if (!user.password) {
       throw new HttpException(
-        'utilisateur introuvable',
-        HttpStatus.UNAUTHORIZED,
+        'Mot de passe non défini',
+        HttpStatus.BAD_REQUEST,
       );
-    if (!user.password)
-      throw new HttpException(
-        'mot de passe incorrect',
-        HttpStatus.UNAUTHORIZED,
-      );
+    }
+
     let isMatch = false;
+
     try {
       isMatch = await argon.verify(user.password, login_dto.password);
-    } catch (e) {}
+    } catch (e) {
+      // Gérer l'erreur de vérification du mot de passe ici
+    }
 
-    if (!isMatch)
-      throw new HttpException('password incorrect', HttpStatus.UNAUTHORIZED);
-    if (!user.active)
+    if (!isMatch) {
+      throw new HttpException('Mot de passe incorrect', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!user.active) {
       throw new HttpException(
-        "Votre compte n'est pas activer",
+        "Votre compte n'est pas activé",
         HttpStatus.UNAUTHORIZED,
       );
+    }
 
     return await this.makeCompleted(user);
   }
@@ -81,17 +87,19 @@ export class AuthService {
       .findOne({ _id: tokenId })
       .populate('user', null)
       .exec();
-
-    const isMatch = await argon.verify(
-      found_token.refreshToken ?? '',
-      refreshToken,
-    );
-
+    let isMatch = false;
     if (found_token == null) {
       //refresh token is valid but the id is not in database
       //TODO:inform the user with the payload sub
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
+    try {
+      isMatch = await argon.verify(
+        found_token.refreshToken ?? '',
+        refreshToken,
+      );
+    } catch {}
+
     if (!isMatch) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }

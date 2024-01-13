@@ -3,6 +3,8 @@ import { ContractService } from './contract.service';
 import { ContractController } from './contract.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Contract, ContractSchema } from './schemas/contract.schema';
+import { ContractAdminController } from './contract-admin.controller';
+import { ContractAdminService } from './contract-admin.service';
 
 @Module({
   imports: [
@@ -10,7 +12,7 @@ import { Contract, ContractSchema } from './schemas/contract.schema';
       { name: Contract.name, schema: ContractSchema },
     ]),
   ],
-  controllers: [ContractController],
-  providers: [ContractService],
+  controllers: [ContractController, ContractAdminController],
+  providers: [ContractService, ContractAdminService],
 })
 export class ContractModule {}

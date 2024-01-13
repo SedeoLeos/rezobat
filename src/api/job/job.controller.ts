@@ -59,6 +59,7 @@ export class JobController {
 
   @Patch(':id')
   @InjectPkToBody({ dtoField: 'id', paramsName: 'id' })
+  @FormDataRequest()
   async update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
     const job = await this.jobService.update(id, updateJobDto);
     if (job) {

@@ -1,27 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { CreateContractDto } from './dto/create-contract.dto';
-import {
-  AddFileContractDto,
-  UpdateContractDto,
-  UpdateContractStatusDto,
-} from './dto/update-contract.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Contract, ContractDocument } from './schemas/contract.schema';
-import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { User } from '../user/schemas/user.schema';
+import { Model } from 'mongoose';
+import { CreateContractAdminDto } from './dto/create-contract.dto';
+import {
+  AddFileContractDto,
+  UpdateContractAdminDto,
+} from './dto/update-contract.dto';
 import { Media } from '../media/schemas/media.schema';
 const POPULATE = ['client', 'provider', 'job', 'type'];
+
 @Injectable()
-export class ContractService {
+export class ContractAdminService {
   constructor(
     @InjectModel(Contract.name)
     private model: Model<ContractDocument>,
     private eventEmiter: EventEmitter2,
   ) {}
-  async create(createContractDto: CreateContractDto, user: User) {
+  async create(createContractDto: CreateContractAdminDto) {
     const {
       provider_id,
+      client_id,
       job_id,
       type_id,
       files: filsMemory,
@@ -30,6 +30,7 @@ export class ContractService {
     const type = { _id: type_id };
     const job = { _id: job_id };
     const provider = { _id: provider_id };
+    const client = client_id ? { _id: client_id } : {};
     if (filsMemory) {
       const medias = filsMemory.map((file) => ({
         file: file,
@@ -50,7 +51,7 @@ export class ContractService {
         await new this.model({
           ...result,
           files,
-          client: user,
+          client: client,
           provider,
           job,
           type,
@@ -64,17 +65,46 @@ export class ContractService {
       type,
     }).save();
   }
+  async update(id: string, updateContractDto: UpdateContractAdminDto) {
+    const {
+      provider_id,
+      client_id,
+      job_id,
+      type_id,
 
-  async findAll(user: User, skip = 0, limit?: number) {
-    const { id, role } = user;
-    const query =
-      role == 'Client' || role == 'Provider'
-        ? { [role.toLowerCase()]: { id } }
-        : {};
+      ...result
+    } = updateContractDto;
+    const contract = await this.model
+      .findOne({ _id: id })
+      .populate(POPULATE)
+      .exec();
+    if (!contract) {
+      return;
+    }
+    const type = { _id: type_id };
+    const job = { _id: job_id };
+    const provider = { _id: provider_id };
+    const client = client_id ? { _id: client_id } : {};
+
+    return await this.model
+      .findByIdAndUpdate(id, {
+        ...result,
+
+        client: client,
+        provider,
+        job,
+        type,
+      })
+      .populate(POPULATE)
+      .exec();
+  }
+
+  async findAll(skip = 0, limit?: number) {
     const count = await this.model.countDocuments({}).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;
     const _query = this.model
-      .find({ ...query })
+      .find()
+      .sort({ createdAt: 'desc' })
       .populate(POPULATE)
       .skip(skip);
     if (limit) {
@@ -90,54 +120,6 @@ export class ContractService {
 
   async findOne(id: string) {
     return await this.model.findOne({ id }).exec();
-  }
-
-  async update(user: User, id: string, updateContratDto: UpdateContractDto) {
-    const name = user.role.toLowerCase();
-    const contract = await this.model
-      .findOne({ _id: id, [name]: { _id: user.id } })
-      .exec();
-    if (!contract) {
-      return;
-    }
-    const { provider_id, job_id, type_id, ...result } = updateContratDto;
-    const type = { _id: type_id };
-    const job = { _id: job_id };
-    const provider = { _id: provider_id };
-
-    return await (
-      await this.model
-        .findByIdAndUpdate(id, {
-          ...result,
-          provider,
-          job,
-          type,
-        })
-        .populate(POPULATE)
-    ).save();
-  }
-  async statusUpdate(
-    id: string,
-    updateContratStatusDto: UpdateContractStatusDto,
-  ) {
-    const contract = await this.model
-      .findOne({ _id: id })
-      .populate(POPULATE)
-      .exec();
-    if (!contract) {
-      return;
-    }
-    const { status } = updateContratStatusDto;
-    if (status == contract.status) {
-      return contract;
-    }
-    return await (
-      await this.model
-        .findByIdAndUpdate(id, {
-          status,
-        })
-        .populate(POPULATE)
-    ).save();
   }
   async setFile(id: string, updateContratDto: AddFileContractDto) {
     const contract = await this.model

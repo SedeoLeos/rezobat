@@ -42,8 +42,8 @@ export class CreateContractDto {
   files: MemoryStoredFile[];
 }
 export class CreateContractAdminDto extends CreateContractDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @IsMongoId()
   @IsExistMongoose('User', '_id')
   client_id: string;

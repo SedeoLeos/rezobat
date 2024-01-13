@@ -1,5 +1,8 @@
 import { PartialType, OmitType, PickType } from '@nestjs/mapped-types';
-import { CreateContractDto } from './create-contract.dto.js';
+import {
+  CreateContractAdminDto,
+  CreateContractDto,
+} from './create-contract.dto.js';
 import { IsArray, IsIn, IsNotEmpty } from 'class-validator';
 import {
   StatusContract,
@@ -8,6 +11,9 @@ import {
 
 export class UpdateContractDto extends PartialType(
   OmitType(CreateContractDto, ['files']),
+) {}
+export class UpdateContractAdminDto extends PartialType(
+  OmitType(CreateContractAdminDto, ['files']),
 ) {}
 export class UpdateContractStatusDto {
   @IsNotEmpty()
