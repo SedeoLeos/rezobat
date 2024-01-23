@@ -37,7 +37,11 @@ export class JobService {
   async findAll(skip = 0, limit?: number) {
     const count = await this.model.countDocuments({}).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;
-    const query = this.model.find().populate('image').skip(skip);
+    const query = this.model
+      .find()
+      .sort({ createdAt: 'desc' })
+      .populate('image')
+      .skip(skip);
     if (limit) {
       query.limit(limit);
     }

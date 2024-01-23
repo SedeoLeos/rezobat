@@ -75,6 +75,7 @@ export class ContractService {
     const page_total = Math.floor((count - 1) / limit) + 1;
     const _query = this.model
       .find({ ...query })
+      .sort({ createdAt: 'desc' })
       .populate(POPULATE)
       .skip(skip);
     if (limit) {

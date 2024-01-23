@@ -27,9 +27,9 @@ export class ContractAdminService {
       files: filsMemory,
       ...result
     } = createContractDto;
-    const type = { _id: type_id };
-    const job = { _id: job_id };
-    const provider = { _id: provider_id };
+    const type = type_id ? { _id: type_id } : {};
+    const job = job_id ? { _id: job_id } : {};
+    const provider = provider_id ? { _id: provider_id } : {};
     const client = client_id ? { _id: client_id } : {};
     if (filsMemory) {
       const medias = filsMemory.map((file) => ({
@@ -46,24 +46,28 @@ export class ContractAdminService {
           files.push(filesMedia[0]);
         }
       }
-
+      console.log(client);
+      console.log(provider);
       return await (
         await new this.model({
           ...result,
           files,
-          client: client,
+          client,
           provider,
           job,
           type,
         }).populate(POPULATE)
       ).save();
     }
-    return await new this.model({
-      ...result,
-      provider,
-      job,
-      type,
-    }).save();
+    return await (
+      await new this.model({
+        ...result,
+        client,
+        provider,
+        job,
+        type,
+      }).populate(POPULATE)
+    ).save();
   }
   async update(id: string, updateContractDto: UpdateContractAdminDto) {
     const {

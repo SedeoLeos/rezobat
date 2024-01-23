@@ -29,6 +29,7 @@ export class UserController {
   @Post()
   @FormDataRequest()
   async create(@Body() createUserDto: CreateUserDto) {
+    console.log(createUserDto);
     const user = await this.userService.create(createUserDto);
     if (user) {
       return {
@@ -65,7 +66,9 @@ export class UserController {
 
   @Patch(':id')
   @InjectPkToBody({ dtoField: 'id', paramsName: 'id' })
+  @FormDataRequest()
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
     const user = await this.userService.update(id, updateUserDto);
     if (user) {
       return {

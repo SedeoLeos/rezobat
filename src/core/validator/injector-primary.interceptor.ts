@@ -19,12 +19,12 @@ export class InjectUserInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-
+    console.log(888888);
     if (this.type && request[this.type]) {
       request[this.type][this.input.paramsName] =
         request.params[this.input.paramsName];
-      console.log('?????', request[this.type]);
     }
+    console.log(request[this.type]);
     return next.handle();
   }
 }

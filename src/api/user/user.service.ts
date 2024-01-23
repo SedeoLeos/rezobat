@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User, UserDocument } from './schemas/user.schema';
+import { User, UserDocument, arrayRole } from './schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RegisterDto } from '../auth/dto/register.dto';
@@ -9,6 +9,7 @@ import { MailService } from 'src/core/mail/mail.service';
 import * as argon from 'argon2';
 import { randomBytes } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ConfigService } from '@nestjs/config';
 
 const generatePassword = async (length: number): Promise<string> => {
   if (length < 1) {
@@ -38,13 +39,33 @@ const generatePassword = async (length: number): Promise<string> => {
   // Return the generated password.
   return password;
 };
+const POPULATE = ['photo', 'jobs'];
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
   constructor(
     @InjectModel(User.name) private readonly model: Model<UserDocument>,
     private mail_service: MailService,
     private eventEmitter: EventEmitter2,
+    private configService: ConfigService,
   ) {}
+  async onModuleInit() {
+    const hash = await argon.hash('admin123');
+    const user: Partial<User> = {
+      email: this.configService.get('ADMIN_EMAIL') ?? 'sample@gmail.com',
+      first_name: this.configService.get('ADMIN_FIRST'),
+      last_name: this.configService.get('ADMIN_LAST'),
+      phone: this.configService.get('ADMIN_PHONE') ?? '+242060000000',
+      password: hash,
+      role: arrayRole[2],
+      isAdmin: true,
+      active: true,
+    };
+    const found = await this.model.findOne({ isAdmin: true }).exec();
+    if (!found) {
+      await new this.model(user).save();
+    }
+  }
+
   async create(createUserDto: CreateUserDto) {
     const { photo: file, ...result } = createUserDto;
     try {
@@ -84,11 +105,11 @@ export class UserService {
   async findAll(skip = 0, limit?: number) {
     const count = await this.model.countDocuments({}).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;
-    const query = this.model.find().skip(skip);
+    const query = this.model.find().sort({ createdAt: 'desc' }).skip(skip);
     if (limit) {
       query.limit(limit);
     }
-    const data = await query.exec();
+    const data = await query.populate(POPULATE).exec();
     return {
       data: data,
       page_total: page_total,
@@ -102,7 +123,7 @@ export class UserService {
     if (limit) {
       query.limit(limit);
     }
-    const data = await query.exec();
+    const data = await query.populate(POPULATE).exec();
     return {
       data: data,
       page_total: page_total,
@@ -120,7 +141,10 @@ export class UserService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     delete updateUserDto.id;
     const { photo: file, ...partialUser } = updateUserDto;
-    const user = await this.model.findOne({ _id: id }).populate('photo').exec();
+    const user = await this.model
+      .findOne({ _id: id })
+      .populate(POPULATE)
+      .exec();
     if (!user) {
       return;
     }
