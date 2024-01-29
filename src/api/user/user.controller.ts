@@ -18,7 +18,7 @@ import {
   PaginationParamsSearch,
 } from 'src/core/pagination/page-option.dto';
 import { UserCRUDMessage } from './message/user.message';
-import { Abilitys, Public } from 'src/core/decorators/public.decorator';
+import { Abilitys } from 'src/core/decorators/public.decorator';
 import { InjectPkToBody } from 'src/core/validator/decorators';
 import { FormDataRequest } from 'nestjs-form-data';
 import { AbilitysEnum } from '../auth/tools/token.builder';
@@ -45,12 +45,13 @@ export class UserController {
   findAll(@Query() { limit, skip }: PaginationParams) {
     return this.userService.findAll(skip, limit);
   }
+  @Abilitys(AbilitysEnum.ARTISANT)
+  @Abilitys(AbilitysEnum.CLIENT)
   @Get('search')
   findSearch(@Query() { limit, skip, jobs }: PaginationParamsSearch) {
     return this.userService.search(skip, jobs, limit);
   }
 
-  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const user = await this.userService.findOne(id);

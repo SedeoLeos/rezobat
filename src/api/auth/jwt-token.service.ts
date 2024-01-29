@@ -34,8 +34,8 @@ export class JwtTokenService {
       };
     }
     const accessOption: OptionTime = {
-      time_value: 1,
-      time_unit: 'd',
+      time_value: this.confige_service.get('ACCESS_TIME_VALUE'),
+      time_unit: this.confige_service.get('ACCESS_TIME_UNIT'),
       secret: this.confige_service.get('JWT_ACCESS_SECRET'),
     };
     if (!option.refresh) {
