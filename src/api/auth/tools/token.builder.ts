@@ -1,7 +1,10 @@
-const DEFAULT_ABILITYS = 'AUTHENTIFICATED';
+export const DEFAULT_ABILITYS = 'AUTHENTIFICATED';
 export const VERIFIED_OTP = 'VERIFIED_OTP';
 export const ACTIVE_USER = 'ACTIVE_USER';
 export const UPDATE_PASSWORD = 'UPDATE_PASSWORD';
+export const CLIENT = 'CLIENT';
+export const ARTISANT = 'ARTISANT';
+export const ADMIN = 'ADMIN';
 
 export enum AbilitysEnum {
   DEFAULT_ABILITYS = 'AUTHENTIFICATED',
@@ -9,6 +12,9 @@ export enum AbilitysEnum {
   ACTIVE_USER = 'ACTIVE_USER',
   UPDATE_PASSWORD = 'UPDATE_PASSWORD',
   IS_REFRESH_KEY = 'isRefresh',
+  CLIENT = 'CLIENT',
+  ARTISANT = 'ARTISANT',
+  ADMIN = 'ADMIN',
 }
 export interface UserI {
   _id: string;

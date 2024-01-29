@@ -23,7 +23,7 @@ import { User } from '../user/schemas/user.schema';
 import { PaginationParams } from 'src/core/pagination/page-option.dto';
 import { ContratCRUDMessage } from './message/contrat.message';
 
-@Controller('contract')
+@Controller('contracts')
 export class ContractController {
   constructor(private readonly contractService: ContractService) {}
 

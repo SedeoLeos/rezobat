@@ -18,11 +18,12 @@ import {
   PaginationParamsSearch,
 } from 'src/core/pagination/page-option.dto';
 import { UserCRUDMessage } from './message/user.message';
-import { Public } from 'src/core/decorators/public.decorator';
+import { Abilitys, Public } from 'src/core/decorators/public.decorator';
 import { InjectPkToBody } from 'src/core/validator/decorators';
 import { FormDataRequest } from 'nestjs-form-data';
-
-@Controller('user')
+import { AbilitysEnum } from '../auth/tools/token.builder';
+@Abilitys(AbilitysEnum.ADMIN)
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -40,7 +41,6 @@ export class UserController {
     }
     throw new BadRequestException(UserCRUDMessage.CREATE_ERROR);
   }
-  @Public()
   @Get()
   findAll(@Query() { limit, skip }: PaginationParams) {
     return this.userService.findAll(skip, limit);

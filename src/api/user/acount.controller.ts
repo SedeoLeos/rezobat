@@ -77,7 +77,7 @@ export class AccountController {
     }
     throw new BadRequestException(AccountCRUDMessage.PASSWORD_ERROR);
   }
-  @Abilitys(AbilitysEnum.ACTIVE_USER, AbilitysEnum.DEFAULT_ABILITYS)
+
   @Patch()
   async update(@CurrentUser() user: User, @Body() payload: UpdateUserInfoDto) {
     const { id } = user;
