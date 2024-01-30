@@ -42,8 +42,8 @@ export class AdminJobController {
   }
 
   @Get()
-  findAll(@Query() { limit, skip }: PaginationParams) {
-    return this.jobService.findAll(skip, limit);
+  findAll(@Query() params: PaginationParams) {
+    return this.jobService.findAll(params);
   }
 
   @Get(':id')
