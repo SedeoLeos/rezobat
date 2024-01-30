@@ -9,6 +9,7 @@ import {
   Refresh,
 } from 'src/core/decorators/public.decorator';
 import { AbilitysEnum } from './tools/token.builder.js';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -27,11 +28,12 @@ export class AuthController {
   @Refresh()
   @Post('refresh')
   refreshToken(
-    @Headers('authorisation') refreshToken: string,
+    @Headers('authorization') authorization: string,
     @Headers('tokenId') tokenId: string,
     @Request() request: any,
   ) {
     const { user } = request;
+    const refreshToken = authorization.split(" ")[1];
     return this.authService.getUserIfRefreshTokenMatches(
       refreshToken,
       tokenId,
@@ -40,7 +42,8 @@ export class AuthController {
   }
 
   // Otp login
-  @Abilitys(AbilitysEnum.VERIFIED_OTP)
+  // @Abilitys(AbilitysEnum.VERIFIED_OTP)
+  @Public()
   @Post('verify-otp')
   otpVerify(@Body() playload: OTPVerifyDto) {
     return this.authService.otpVerify(playload);
@@ -54,5 +57,10 @@ export class AuthController {
   @Post('refresh-otp')
   optRefresh(@Body() playload: OTPRefreshDTO) {
     return this.authService.otpRefresh(playload);
+  }
+  @Public()
+  @Post('reset-password')
+  resetPassword(@Body() playload: ResetPasswordDTO) {
+    return this.authService.resetPassword(playload);
   }
 }

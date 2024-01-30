@@ -28,7 +28,8 @@ export class OTPService {
       email: user.email,
       isRefresh,
     });
-    const otp = randomInt(100000, 999999).toString();
+    // 4 digit OTP to comply with the figma design (specifications)
+    const otp = randomInt(1000, 9999).toString();
     const value = await argon.hash(otp);
     const time_value = parseInt(this.confige_service.get('OTP_TIME_VALUE'));
 
@@ -75,12 +76,11 @@ export class OTPService {
       .findOne({ email, [type]: true })
       .populate('user')
       .exec();
-    console.log(otp_value);
     if (!otp_value) {
       return;
     }
     const isMatch = await argon.verify(otp_value.value, value);
-    console.log(otp_value);
+    console.log({ otp_value });
 
     if (!isMatch) {
       return;

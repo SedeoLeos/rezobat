@@ -14,3 +14,20 @@ export class Job extends Document {
   image: Media;
 }
 export const JobSchema = SchemaFactory.createForClass(Job);
+
+JobSchema.set('toJSON', {
+  getters: true,
+  virtuals: true,
+  transform: function (doc, ret) {
+    const item: Job = ret as Job;
+
+    if (item.image?.url && !item.image.url.startsWith('http')) {
+      item.image.url =
+        process.env.NODE_ENV !== 'production'
+          ? process.env.SERVER_URL + `/${item.image.url}`
+          : process.env.SERVER_URL + `/${item.image.url}`;
+    }
+
+    return item;
+  },
+});

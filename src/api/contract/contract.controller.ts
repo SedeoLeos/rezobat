@@ -20,7 +20,7 @@ import {
 import { FormDataRequest } from 'nestjs-form-data';
 import { CurrentUser } from 'src/core/decorators/current-user.decorators';
 import { User } from '../user/schemas/user.schema';
-import { PaginationParams } from 'src/core/pagination/page-option.dto';
+import { ContractPaginationParams, PaginationParams } from 'src/core/pagination/page-option.dto';
 import { ContratCRUDMessage } from './message/contrat.message';
 
 @Controller('contracts')
@@ -47,9 +47,19 @@ export class ContractController {
   @Get()
   findAll(
     @CurrentUser() user: User,
-    @Query() { limit, skip }: PaginationParams,
+    @Query() params: ContractPaginationParams,
   ) {
-    return this.contractService.findAll(user, skip, limit);
+    return this.contractService.findAll(user, params);
+  }
+
+  @Get('stats')
+  getUserStats(@CurrentUser() user: User) {
+    return this.contractService.getUserStats(user);
+  }
+
+  @Get('count-in-progress')
+  countInProgress(@CurrentUser() user: User) {
+    return this.contractService.getInProgressCount(user);
   }
 
   @Get(':id')

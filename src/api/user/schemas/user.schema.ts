@@ -32,3 +32,20 @@ export class User extends Document {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.set('toJSON', {
+  getters: true,
+  virtuals: true,
+  transform: function (doc, ret) {
+    const item: User = ret as User;
+
+    if (item.photo?.url && !item.photo.url.startsWith('http')) {
+      item.photo.url =
+        process.env.NODE_ENV !== 'production'
+          ? process.env.SERVER_URL + `/${item.photo.url}`
+          : process.env.SERVER_URL + `/${item.photo.url}`;
+    }
+
+    return item;
+  },
+});

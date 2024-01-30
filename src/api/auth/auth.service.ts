@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as argon from 'argon2';
 
 import { UserService } from '../user/user.service.js';
@@ -14,6 +19,7 @@ import { LoginDto } from './dto/login.dto.js';
 import { OTPPasswordDTO, OTPRefreshDTO, OTPVerifyDto } from './dto/otp.dto.js';
 import { JwtTokenService } from './jwt-token.service.js';
 import { AbilitysEnum, TokenBuilder, TokenI } from './tools/token.builder.js';
+import { ResetPasswordDTO } from './dto/reset-password.dto.js';
 @Injectable()
 export class AuthService {
   constructor(
@@ -85,7 +91,10 @@ export class AuthService {
   ) {
     const found_token = await this.model
       .findOne({ _id: tokenId })
-      .populate('user', null)
+      .populate({
+        path: 'user',
+        populate: 'photo',
+      })
       .exec();
     let isMatch = false;
     if (found_token == null) {
@@ -104,11 +113,11 @@ export class AuthService {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
     const tokenbuilder = new TokenBuilder<User>();
-    tokenbuilder.setUser(payload.user);
-    payload.abilitys.forEach((name) => {
-      tokenbuilder.addAbilitys(name);
-    });
-    tokenbuilder.setUser(payload.user);
+    tokenbuilder.setUser(found_token.user!);
+    // payload.abilitys.forEach((name) => {
+    //   tokenbuilder.addAbilitys(name);
+    // });
+    // tokenbuilder.setUser(payload.user);
     return await this.jwt_token_service.generateTokens(tokenbuilder, {
       tokenId,
     });
@@ -162,6 +171,12 @@ export class AuthService {
       .setUser(found)
       .removeDefaultAbilitys()
       .addAbilitys(AbilitysEnum.VERIFIED_OTP);
+
+    /**
+     * DANGER!!!!
+     * You shouldn't return the credentials here. A success response should be the secure way.
+     * e.g { message: 'ok' };
+     */
     return await this.jwt_token_service.generateTokens(tokenbuilder, {
       refresh: false,
     });
@@ -184,6 +199,22 @@ export class AuthService {
     });
   }
 
+  /**
+   * Update the user's password if the OTP is valid.
+   */
+  async resetPassword({ email, type, otp, password }: ResetPasswordDTO) {
+    const checkOtp = await this.otpVerify({ email, type, otp });
+    if (!checkOtp) {
+      throw new UnauthorizedException();
+    }
+
+    const newPassword = await argon.hash(password);
+    const user = await this.user_service.updateSimple(`${checkOtp.user._id!}`, {
+      password: newPassword,
+    });
+
+    return this.makeCompleted(user);
+  }
   async makeCompleted(user: User) {
     const tokenbuilder = new TokenBuilder<User>();
     tokenbuilder.setUser(user);

@@ -6,11 +6,16 @@ import {
   UpdateContractStatusDto,
 } from './dto/update-contract.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Contract, ContractDocument } from './schemas/contract.schema';
-import { Model } from 'mongoose';
+import {
+  Contract,
+  ContractDocument,
+  statusContractArray,
+} from './schemas/contract.schema';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from '../user/schemas/user.schema';
 import { Media } from '../media/schemas/media.schema';
+import { ContractPaginationParams } from 'src/core/pagination/page-option.dto';
 const POPULATE = ['client', 'provider', 'job', 'type'];
 @Injectable()
 export class ContractService {
@@ -50,7 +55,7 @@ export class ContractService {
         await new this.model({
           ...result,
           files,
-          client: user,
+          client: user._id,
           provider,
           job,
           type,
@@ -60,17 +65,24 @@ export class ContractService {
     return await new this.model({
       ...result,
       provider,
+      client: user._id,
       job,
       type,
     }).save();
   }
 
-  async findAll(user: User, skip = 0, limit?: number) {
+  async findAll(
+    user: User,
+    { skip = 0, limit, status }: ContractPaginationParams,
+  ) {
     const { id, role } = user;
-    const query =
+    const query: FilterQuery<Contract> =
       role == 'Client' || role == 'Provider'
-        ? { [role.toLowerCase()]: { id } }
+        ? { [role.toLowerCase()]: new Types.ObjectId(id) }
         : {};
+    if (status) {
+      query.status = status;
+    }
     const count = await this.model.countDocuments({}).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;
     const _query = this.model
@@ -90,7 +102,10 @@ export class ContractService {
   }
 
   async findOne(id: string) {
-    return await this.model.findOne({ id }).exec();
+    return await this.model
+      .findById(new Types.ObjectId(id))
+      .populate(POPULATE)
+      .exec();
   }
 
   async update(user: User, id: string, updateContratDto: UpdateContractDto) {
@@ -169,5 +184,44 @@ export class ContractService {
 
   async remove(id: string) {
     return await this.model.findByIdAndDelete(id).exec();
+  }
+
+  /**
+   * Get the user contracts stats (counts by status).
+   */
+  async getUserStats(user: User) {
+    const { id: userId, role } = user;
+    const query: FilterQuery<Contract> =
+      role == 'Client' || role == 'Provider'
+        ? { [role.toLowerCase()]: new Types.ObjectId(userId) }
+        : {};
+
+    const counts = await Promise.all(
+      statusContractArray.map(async (status) => {
+        const count = await this.model.countDocuments({ status, ...query });
+        return { [status]: count };
+      }),
+    );
+
+    return counts.reduce((acc, curr) => {
+      for (const key in curr) {
+        acc[key] = curr[key];
+      }
+
+      return acc;
+    }, {});
+  }
+
+  async getInProgressCount(user: User) {
+    const { id: userId, role } = user;
+    const query: FilterQuery<Contract> =
+      role == 'Client' || role == 'Provider'
+        ? {
+            [role.toLowerCase()]: new Types.ObjectId(userId),
+            status: 'En Cours',
+          }
+        : {};
+
+    return await this.model.countDocuments(query);
   }
 }

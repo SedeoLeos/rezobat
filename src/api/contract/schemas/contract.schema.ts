@@ -6,10 +6,10 @@ import { Media } from 'src/api/media/schemas/media.schema';
 import { User } from 'src/api/user/schemas/user.schema';
 import { SchemaProp } from 'src/core/constants';
 export const statusContractArray = [
-  'En attends de traitement',
+  'En attente de traitement',
   'En Cours',
-  'Terminer',
-  'Annuler',
+  'Terminé',
+  'Annulé',
 ] as const;
 export type StatusContract = (typeof statusContractArray)[number];
 export type ContractDocument = HydratedDocument<Contract>;

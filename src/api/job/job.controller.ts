@@ -18,8 +18,8 @@ export class JobController {
   constructor(private readonly jobService: JobService) {}
 
   @Get()
-  findAll(@Query() { limit, skip }: PaginationParams) {
-    return this.jobService.findAll(skip, limit);
+  findAll(@Query() { limit, skip, filter }: PaginationParams) {
+    return this.jobService.findAll({skip, limit, filter});
   }
 
   @Get(':id')
