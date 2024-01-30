@@ -134,6 +134,12 @@ export class AccountService {
     }
   }
 
+  /**
+   * WARNING!!!!!: DO some checks before.
+   * And eventually also delete related data...
+   * 
+   * Or a better way would be to implement a soft delete. 
+   */
   async remove(id: string) {
     try {
       return await this.model.findByIdAndDelete(id).exec();

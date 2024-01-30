@@ -46,8 +46,7 @@ export class UserController {
   findAll(@Query() { limit, skip }: PaginationParams) {
     return this.userService.findAll(skip, limit);
   }
-  @Abilitys(AbilitysEnum.ARTISANT)
-  @Abilitys(AbilitysEnum.CLIENT)
+  @Abilitys(AbilitysEnum.DEFAULT_ABILITYS)
   @Get('search')
   findSearch(@Query() params: UserPaginationParamsSearch) {
     return this.userService.search(params);

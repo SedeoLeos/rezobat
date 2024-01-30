@@ -18,6 +18,7 @@ import { UpdateUserInfoDto } from './dto/update-user.dto';
 import { AccountCRUDMessage } from './message/account.messga';
 import { AddJob, RemoveJob } from './dto/accountJob.dto';
 
+@Abilitys(AbilitysEnum.DEFAULT_ABILITYS)
 @Controller('account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
