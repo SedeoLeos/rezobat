@@ -70,21 +70,26 @@ export class Auth0Guard implements CanActivate {
           throw new UnauthorizedException();
         }
         request['user'] = user;
+        request['abilitys'] = abilitys;
         return true;
       }
       request['user'] = user;
+      request['abilitys'] = abilitys;
       return requiredAbilitys.some((abd) => abilitys?.includes(abd));
 
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('');
     }
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const headers = request.headers as any;
-    const [type, token] = headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    return extractTokenFromHeader(request);
   }
 }
+export const extractTokenFromHeader = (request: Request) => {
+  const headers = request.headers as any;
+  const [type, token] = headers.authorization?.split(' ') ?? [];
+  return type === 'Bearer' ? token : undefined;
+};

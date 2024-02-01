@@ -22,13 +22,17 @@ export class CreateContractDto {
   @IsString()
   @IsNotEmpty()
   @IsMongoId()
-  @IsExistMongoose('Job', '_id')
+  @IsExistMongoose('Job', '_id', {
+    message: 'Le champ job_id dois exister dans la base de donné',
+  })
   job_id: string;
 
   @IsString()
   @IsNotEmpty()
   @IsMongoId()
-  @IsExistMongoose('ContractType', '_id')
+  @IsExistMongoose('ContractType', '_id', {
+    message: 'Le champ type_id dois exister dans la base de donné',
+  })
   type_id: string;
 
   @IsString()

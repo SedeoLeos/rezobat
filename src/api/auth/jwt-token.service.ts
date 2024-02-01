@@ -65,7 +65,7 @@ export class JwtTokenService {
       const { _id: id } = await this.model
         .findByIdAndUpdate(tokenId, {
           refreshToken: hash,
-          user: USER,
+          user: { _id: USER.id },
         })
         .exec();
 

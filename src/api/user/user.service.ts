@@ -170,7 +170,9 @@ export class UserService implements OnModuleInit {
     return await this.model.findByIdAndUpdate(id, { ...updateFields }).exec();
   }
   async updateSimple(id: string, updateUserDto: { [x: string]: any }) {
-    return await this.model.findByIdAndUpdate(id, updateUserDto).exec();
+    return await this.model
+      .findByIdAndUpdate({ _id: id }, updateUserDto)
+      .exec();
   }
   async remove(id: string) {
     return await this.model.findByIdAndDelete(id).exec();

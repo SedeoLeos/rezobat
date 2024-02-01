@@ -9,6 +9,7 @@ import {
   Query,
   BadRequestException,
   NotFoundException,
+  Put,
 } from '@nestjs/common';
 import { ContractService } from './contract.service';
 import { CreateContractDto } from './dto/create-contract.dto';
@@ -86,7 +87,7 @@ export class ContractController {
     }
     throw new NotFoundException(ContratCRUDMessage.UPDATE_ERROR);
   }
-  @Patch(':id/status')
+  @Put(':id/status')
   async statusUpdate(
     @Param('id') id: string,
     @Body() updateContractStatusDto: UpdateContractStatusDto,

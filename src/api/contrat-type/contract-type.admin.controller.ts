@@ -16,9 +16,9 @@ import { UpdateContractTypeDto } from './dto/update-contrat-type.dto';
 import { ContractTypeCRUDMessage } from './message/contrat-type.message';
 import { PaginationParams } from 'src/core/pagination/page-option.dto';
 import { InjectPkToBody } from 'src/core/validator/decorators';
-import { Public } from 'src/core/decorators/public.decorator';
-
-@Public()
+import { Abilitys } from 'src/core/decorators/public.decorator';
+import { AbilitysEnum } from '../auth/tools/token.builder';
+@Abilitys(AbilitysEnum.ADMIN)
 @Controller('admin/contract-types')
 export class AdminContractTypeController {
   constructor(private readonly contractTypeService: ContractTypeService) {}

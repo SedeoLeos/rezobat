@@ -46,8 +46,6 @@ export class ContractAdminService {
           files.push(filesMedia[0]);
         }
       }
-      console.log(client);
-      console.log(provider);
       return await (
         await new this.model({
           ...result,

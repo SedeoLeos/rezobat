@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class MailService {
   LOGO_APP = this.config.get('MAIL_LOGO');
+
   constructor(
     private mailerService: MailerService,
     private config: ConfigService,
@@ -14,6 +15,10 @@ export class MailService {
   async signup(user: User, value: string): Promise<SentMessageInfo> {
     try {
       return await this.mailerService.sendMail({
+        from: {
+          name: this.config.get('MAIL_APP'),
+          address: this.config.get('MAIL_CLIENT'),
+        },
         to: ['gedeon.matsoula@nanocreatives.com', user.email],
         subject: 'Code de Verification',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -73,6 +78,10 @@ export class MailService {
   ): Promise<SentMessageInfo> {
     try {
       return await this.mailerService.sendMail({
+        from: {
+          name: this.config.get('MAIL_APP'),
+          address: this.config.get('MAIL_CLIENT'),
+        },
         to: ['gedeon.matsoula@nanocreatives.com', user.email],
         subject: 'Informations de connexion',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -128,6 +137,10 @@ export class MailService {
   async resetPassword(user: User, value: string): Promise<SentMessageInfo> {
     try {
       return await this.mailerService.sendMail({
+        from: {
+          name: this.config.get('MAIL_APP'),
+          address: this.config.get('MAIL_CLIENT'),
+        },
         to: ['gedeon.matsoula@nanocreatives.com', user.email],
         subject: 'Mot de passe oblié',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">

@@ -27,9 +27,10 @@ export class ContractService {
       files: filsMemory,
       ...result
     } = createContractDto;
-    const type = { _id: type_id };
-    const job = { _id: job_id };
-    const provider = { _id: provider_id };
+    const type = type_id ? { _id: type_id } : {};
+    const job = job_id ? { _id: job_id } : {};
+    const provider = provider_id ? { _id: provider_id } : {};
+    const client = user ? { _id: user.id } : {};
     if (filsMemory) {
       const medias = filsMemory.map((file) => ({
         file: file,
@@ -50,26 +51,29 @@ export class ContractService {
         await new this.model({
           ...result,
           files,
-          client: user,
+          client,
           provider,
           job,
           type,
         }).populate(POPULATE)
       ).save();
     }
-    return await new this.model({
-      ...result,
-      provider,
-      job,
-      type,
-    }).save();
+    return await (
+      await new this.model({
+        ...result,
+        client,
+        provider,
+        job,
+        type,
+      }).populate(POPULATE)
+    ).save();
   }
 
   async findAll(user: User, skip = 0, limit?: number) {
     const { id, role } = user;
     const query =
       role == 'Client' || role == 'Provider'
-        ? { [role.toLowerCase()]: { id } }
+        ? { [role.toLowerCase()]: { _id: id } }
         : {};
     const count = await this.model.countDocuments({}).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;

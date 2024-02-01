@@ -9,9 +9,7 @@ import { ContractTypeService } from './contract-type.service';
 
 import { ContractTypeCRUDMessage } from './message/contrat-type.message';
 import { PaginationParams } from 'src/core/pagination/page-option.dto';
-import { Public } from 'src/core/decorators/public.decorator';
 
-@Public()
 @Controller('contract-types')
 export class ContractTypeController {
   constructor(private readonly contractTypeService: ContractTypeService) {}

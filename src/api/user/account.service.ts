@@ -27,14 +27,6 @@ export class AccountService {
       return null;
     }
   }
-  async resetPassword(user: User, value: string) {
-    try {
-      const password = await argon.hash(value);
-      return await this.model.findOneAndUpdate(user.id, { password });
-    } catch (e) {
-      return null;
-    }
-  }
   async updatePassword(id: string, value: string, old: string) {
     try {
       const _user = await this.model.findOne({ _id: id });

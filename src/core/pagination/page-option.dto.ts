@@ -17,6 +17,7 @@ export class PaginationParams {
   @Min(1)
   limit?: number;
 }
+
 export class PaginationParamsSearch {
   @IsOptional()
   @Type(() => Number)

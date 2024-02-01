@@ -60,23 +60,6 @@ export class AccountController {
     }
     throw new BadRequestException(AccountCRUDMessage.PASSWORD_ERROR);
   }
-  @Abilitys(AbilitysEnum.UPDATE_PASSWORD)
-  @Post('reset-password')
-  async resetPassword(
-    @CurrentUser() user: User,
-    @Body() payload: UpdatePasswordDto,
-  ) {
-    const { id } = user;
-    const _user = await this.accountService.resetPassword(id, payload.password);
-    if (_user) {
-      return {
-        message: AccountCRUDMessage.PASSWORD_SUCCESS,
-        entity: _user,
-        status: 201,
-      };
-    }
-    throw new BadRequestException(AccountCRUDMessage.PASSWORD_ERROR);
-  }
 
   @Patch()
   async update(@CurrentUser() user: User, @Body() payload: UpdateUserInfoDto) {

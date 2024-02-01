@@ -94,6 +94,7 @@ export class AuthService {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
     try {
+      console.log(found_token.refreshToken, refreshToken);
       isMatch = await argon.verify(
         found_token.refreshToken ?? '',
         refreshToken,
@@ -111,6 +112,7 @@ export class AuthService {
     tokenbuilder.setUser(payload.user);
     return await this.jwt_token_service.generateTokens(tokenbuilder, {
       tokenId,
+      refresh: true,
     });
   }
   async signOut(tokenId: string) {
@@ -165,6 +167,16 @@ export class AuthService {
     return await this.jwt_token_service.generateTokens(tokenbuilder, {
       refresh: false,
     });
+  }
+  async resetPassword(user: User, value: string) {
+    try {
+      const password = await argon.hash(value);
+      console.log(user, password);
+      return await this.user_service.updateSimple(user.id, { password });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
   async otpVerify(dto: OTPVerifyDto) {
     const { email, type, otp } = dto;

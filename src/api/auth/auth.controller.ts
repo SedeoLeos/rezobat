@@ -1,14 +1,30 @@
-import { Body, Controller, Headers, Post, Request } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Headers,
+  Post,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { OTPPasswordDTO, OTPRefreshDTO, OTPVerifyDto } from './dto/otp.dto';
+import {
+  OTPPasswordDTO,
+  OTPRefreshDTO,
+  OTPVerifyDto,
+  ResetPasswordDto,
+} from './dto/otp.dto';
 import {
   Abilitys,
   Public,
   Refresh,
 } from 'src/core/decorators/public.decorator';
-import { AbilitysEnum } from './tools/token.builder.js';
+import { AbilitysEnum, TokenI } from './tools/token.builder';
+import { extractTokenFromHeader } from './guard/jwt.guard';
+import { User } from '../user/schemas/user.schema';
+import { CurrentUser } from 'src/core/decorators/current-user.decorators';
+import { AccountCRUDMessage } from '../user/message/account.messga';
 
 @Controller('auth')
 export class AuthController {
@@ -26,16 +42,17 @@ export class AuthController {
   }
   @Refresh()
   @Post('refresh')
-  refreshToken(
-    @Headers('authorisation') refreshToken: string,
-    @Headers('tokenId') tokenId: string,
-    @Request() request: any,
-  ) {
-    const { user } = request;
-    return this.authService.getUserIfRefreshTokenMatches(
-      refreshToken,
-      tokenId,
+  refreshToken(@Headers('tokenId') tokenId: string, @Request() request: any) {
+    const { user, abilitys } = request;
+    const playload: TokenI<User> = {
       user,
+      abilitys,
+      device_name: '',
+    };
+    return this.authService.getUserIfRefreshTokenMatches(
+      extractTokenFromHeader(request),
+      tokenId,
+      playload,
     );
   }
 
@@ -44,6 +61,23 @@ export class AuthController {
   @Post('verify-otp')
   otpVerify(@Body() playload: OTPVerifyDto) {
     return this.authService.otpVerify(playload);
+  }
+
+  @Abilitys(AbilitysEnum.UPDATE_PASSWORD)
+  @Post('reset-password')
+  async resetPassword(
+    @CurrentUser() user: User,
+    @Body() payload: ResetPasswordDto,
+  ) {
+    const _user = await this.authService.resetPassword(user, payload.password);
+    if (_user) {
+      return {
+        message: AccountCRUDMessage.PASSWORD_SUCCESS,
+        entity: _user,
+        status: 200,
+      };
+    }
+    throw new BadRequestException(AccountCRUDMessage.PASSWORD_ERROR);
   }
   @Public()
   @Post('forget-password')

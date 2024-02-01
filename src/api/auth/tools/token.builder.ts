@@ -26,7 +26,7 @@ export interface UserI {
 export class TokenI<T> {
   user: T;
   abilitys: string[];
-  device_name: string;
+  device_name?: string;
 }
 export class TokenBuilder<T> {
   data: TokenI<T>;
