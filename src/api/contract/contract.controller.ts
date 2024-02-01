@@ -55,6 +55,7 @@ export class ContractController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const contrat = await this.contractService.findOne(id);
+    console.log(contrat, id);
     if (contrat) {
       return {
         message: ContratCRUDMessage.READ_SUCCESS,

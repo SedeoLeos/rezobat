@@ -13,7 +13,7 @@ import { Public } from 'src/core/decorators/public.decorator';
 
 @Public()
 @Controller('contract-types')
-export class AdminContractTypeController {
+export class ContractTypeController {
   constructor(private readonly contractTypeService: ContractTypeService) {}
 
   @Get()

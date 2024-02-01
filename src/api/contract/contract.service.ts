@@ -90,7 +90,7 @@ export class ContractService {
   }
 
   async findOne(id: string) {
-    return await this.model.findOne({ id }).exec();
+    return await this.model.findOne({ _id: id }).exec();
   }
 
   async update(user: User, id: string, updateContratDto: UpdateContractDto) {

@@ -19,8 +19,10 @@ import { User } from '../user/schemas/user.schema';
 import { PaginationParams } from 'src/core/pagination/page-option.dto';
 import { ContratCRUDMessage } from './message/contrat.message';
 import { ContractAdminService } from './contract-admin.service';
-
-@Controller('contract-admin')
+import { Abilitys } from 'src/core/decorators/public.decorator';
+import { AbilitysEnum } from '../auth/tools/token.builder';
+@Abilitys(AbilitysEnum.ADMIN)
+@Controller('admin/contracts')
 export class ContractAdminController {
   constructor(private readonly contractAdminService: ContractAdminService) {}
 
