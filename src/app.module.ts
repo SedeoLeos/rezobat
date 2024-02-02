@@ -20,9 +20,12 @@ import { ContractTypeModule } from './api/contrat-type/contract-type.module';
   imports: [
     MongooseModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
-        uri: config.get('DATABASE_URL'),
-      }),
+      useFactory: async (config: ConfigService) => {
+        return {
+          uri: config.get('DATABASE_URL'),
+          dbName: 'rezobat',
+        };
+      },
     }),
     NestjsFormDataModule.config({ isGlobal: true }),
     EventEmitterModule.forRoot(),

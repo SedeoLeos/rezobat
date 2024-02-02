@@ -16,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import {
   PaginationParams,
   PaginationParamsSearch,
+  UserPaginationParamsSearch,
 } from 'src/core/pagination/page-option.dto';
 import { UserCRUDMessage } from './message/user.message';
 import { Abilitys } from 'src/core/decorators/public.decorator';
@@ -45,11 +46,10 @@ export class UserController {
   findAll(@Query() { limit, skip }: PaginationParams) {
     return this.userService.findAll(skip, limit);
   }
-  @Abilitys(AbilitysEnum.ARTISANT)
-  @Abilitys(AbilitysEnum.CLIENT)
+  @Abilitys(AbilitysEnum.DEFAULT_ABILITYS)
   @Get('search')
-  findSearch(@Query() { limit, skip, jobs }: PaginationParamsSearch) {
-    return this.userService.search(skip, jobs, limit);
+  findSearch(@Query() params: UserPaginationParamsSearch) {
+    return this.userService.search(params);
   }
 
   @Get(':id')

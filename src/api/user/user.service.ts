@@ -3,12 +3,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument, arrayRole } from './schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { RegisterDto } from '../auth/dto/register.dto';
 import { MailService } from 'src/core/mail/mail.service';
 import * as argon from 'argon2';
 import { randomBytes } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  PaginationParamsSearch,
+  UserPaginationParamsSearch,
+} from 'src/core/pagination/page-option.dto';
 import { ConfigService } from '@nestjs/config';
 
 const generatePassword = async (length: number): Promise<string> => {
@@ -116,10 +120,50 @@ export class UserService implements OnModuleInit {
       status: 200,
     };
   }
-  async search(skip = 0, jobs: string[], limit?: number) {
-    const count = await this.model.countDocuments({}).exec();
+  async search({
+    skip = 0,
+    jobs,
+    limit = 10,
+    filter,
+    role,
+  }: UserPaginationParamsSearch) {
+    const filterQuery: FilterQuery<User> = {};
+
+    if (Array.isArray(jobs)) {
+      filterQuery['jobs.name'] = { $in: jobs };
+    }
+
+    // @ts-ignore
+    // Array are often parsed as value1,value2,value3...
+    if (typeof jobs === 'string' && jobs.length) {
+      // @ts-ignore
+      filterQuery['jobs'] = { $in: jobs.split(',') };
+    }
+
+    if (filter) {
+      filterQuery.$or = [
+        {
+          first_name: {
+            $regex: new RegExp(filter),
+            $options: 'si',
+          },
+        },
+        {
+          last_name: {
+            $regex: new RegExp(filter),
+            $options: 'si',
+          },
+        },
+      ];
+    }
+
+    if (role) {
+      filterQuery.role = role;
+    }
+
+    const count = await this.model.countDocuments(filterQuery).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;
-    const query = this.model.find({ 'jobs.name': { $in: jobs } }).skip(skip);
+    const query = this.model.find(filterQuery).skip(skip);
     if (limit) {
       query.limit(limit);
     }
@@ -135,7 +179,7 @@ export class UserService implements OnModuleInit {
     return await this.model.findOne({ id });
   }
   async findBy(email: string) {
-    return await this.model.findOne({ email }).exec();
+    return await this.model.findOne({ email }).populate('photo').exec();
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

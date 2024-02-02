@@ -20,11 +20,11 @@ import {
   Public,
   Refresh,
 } from 'src/core/decorators/public.decorator';
-import { AbilitysEnum, TokenI } from './tools/token.builder';
-import { extractTokenFromHeader } from './guard/jwt.guard';
-import { User } from '../user/schemas/user.schema';
+import { AbilitysEnum, TokenI } from './tools/token.builder.js';
 import { CurrentUser } from 'src/core/decorators/current-user.decorators';
+import { User } from '../user/schemas/user.schema';
 import { AccountCRUDMessage } from '../user/message/account.messga';
+import { extractTokenFromHeader } from './guard/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -47,7 +47,6 @@ export class AuthController {
     const playload: TokenI<User> = {
       user,
       abilitys,
-      device_name: '',
     };
     return this.authService.getUserIfRefreshTokenMatches(
       extractTokenFromHeader(request),

@@ -3,7 +3,7 @@ import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Job, JobDocument } from './schema/job.schema';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { isFile } from 'nestjs-form-data';
 
@@ -34,11 +34,27 @@ export class JobService {
     ).save();
   }
 
-  async findAll(skip = 0, limit?: number) {
-    const count = await this.model.countDocuments({}).exec();
+  async findAll({
+    skip = 0,
+    limit = 10,
+    filter,
+  }: {
+    skip?: number;
+    limit?: number;
+    filter?: string;
+  }) {
+    const queryFilter: FilterQuery<Job> = {};
+    if (filter) {
+      queryFilter.name = {
+        $regex: new RegExp(filter),
+        $options: 'si',
+      };
+    }
+
+    const count = await this.model.countDocuments(queryFilter).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;
     const query = this.model
-      .find()
+      .find(queryFilter)
       .sort({ createdAt: 'desc' })
       .populate('image')
       .skip(skip);

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ContractTypeService } from './contract-type.service';
-import { ContractTypeController } from './contract-type.controller';
+import { AdminContractTypeController } from './contract-type.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
   ContractType,
@@ -13,7 +13,7 @@ import {
       { name: ContractType.name, schema: ContracttypeSchema },
     ]),
   ],
-  controllers: [ContractTypeController],
+  controllers: [AdminContractTypeController],
   providers: [ContractTypeService],
 })
 export class ContractTypeModule {}
