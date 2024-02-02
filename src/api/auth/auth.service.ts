@@ -168,7 +168,7 @@ export class AuthService {
       return;
     }
     const otp = await this.opt_service.create(found, playload.type, false);
-    
+
     if (!otp) {
       return;
     }
@@ -186,8 +186,8 @@ export class AuthService {
   }
 
   /**
-   * Reset the user's password after the 
-   * Abilitys UPDATE_PASSWORD was found by the guard system. 
+   * Reset the user's password after the
+   * Abilitys UPDATE_PASSWORD was found by the guard system.
    */
   async resetPassword(user_: User, value: string) {
     try {
@@ -203,7 +203,7 @@ export class AuthService {
    * Verify the otp and generates new jwt credentials.
    * If the otp type is `is_first_auth` the new access token
    * has the abilitys `ACTIVE_USER`.
-   * 
+   *
    * If the otp type is `is_forget_password` the new access token
    * has the abilitys `UPDATE_PASSWORD`.
    */

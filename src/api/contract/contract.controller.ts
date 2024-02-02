@@ -23,7 +23,10 @@ import { CurrentUser } from 'src/core/decorators/current-user.decorators';
 import { User } from '../user/schemas/user.schema';
 import { ContratCRUDMessage } from './message/contrat.message';
 import { ContractPaginationParams } from './dto/paginate-contract.dto';
+import { AbilitysEnum } from '../auth/tools/token.builder';
+import { Abilitys } from 'src/core/decorators/public.decorator';
 
+@Abilitys(AbilitysEnum.ACTIVE_USER)
 @Controller('contracts')
 export class ContractController {
   constructor(private readonly contractService: ContractService) {}
