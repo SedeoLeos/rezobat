@@ -9,9 +9,9 @@ import { MailService } from 'src/core/mail/mail.service';
 import * as argon from 'argon2';
 import { randomBytes } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { UserPaginationParamsSearch } from 'src/core/pagination/page-option.dto';
 
 import { ConfigService } from '@nestjs/config';
+import { UserPaginationParams } from './dto/paginate-users.dto';
 
 const generatePassword = async (length: number): Promise<string> => {
   if (length < 1) {
@@ -124,7 +124,7 @@ export class UserService implements OnModuleInit {
     limit = 10,
     filter,
     role,
-  }: UserPaginationParamsSearch) {
+  }: UserPaginationParams) {
     const filterQuery: FilterQuery<User> = {};
 
     if (Array.isArray(jobs)) {

@@ -15,8 +15,10 @@ import { FilterQuery, Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from '../user/schemas/user.schema';
 import { Media } from '../media/schemas/media.schema';
-import { ContractPaginationParams } from 'src/core/pagination/page-option.dto';
+import { ContractPaginationParams } from './dto/paginate-contract.dto';
+
 const POPULATE = ['client', 'provider', 'job', 'type'];
+
 @Injectable()
 export class ContractService {
   constructor(

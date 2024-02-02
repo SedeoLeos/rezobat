@@ -21,12 +21,9 @@ import {
 import { FormDataRequest } from 'nestjs-form-data';
 import { CurrentUser } from 'src/core/decorators/current-user.decorators';
 import { User } from '../user/schemas/user.schema';
-import { ContractPaginationParams } from 'src/core/pagination/page-option.dto';
 import { ContratCRUDMessage } from './message/contrat.message';
-import { Abilitys, Public } from 'src/core/decorators/public.decorator';
-import { AbilitysEnum } from '../auth/tools/token.builder';
+import { ContractPaginationParams } from './dto/paginate-contract.dto';
 
-@Abilitys(AbilitysEnum.ACTIVE_USER)
 @Controller('contracts')
 export class ContractController {
   constructor(private readonly contractService: ContractService) {}

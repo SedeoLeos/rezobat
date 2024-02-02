@@ -18,6 +18,7 @@ import { PaginationParams } from 'src/core/pagination/page-option.dto';
 import { InjectPkToBody } from 'src/core/validator/decorators';
 import { Abilitys } from 'src/core/decorators/public.decorator';
 import { AbilitysEnum } from '../auth/tools/token.builder';
+
 @Abilitys(AbilitysEnum.ADMIN)
 @Controller('admin/contract-types')
 export class AdminContractTypeController {
