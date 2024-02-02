@@ -57,7 +57,7 @@ export class Auth0Guard implements CanActivate {
         token,
         { secret },
       );
-      const requiredAbilitys = this.reflector.getAllAndOverride<string[]>(
+      const requiredAbilitys = this.reflector.getAllAndOverride<AbilitysEnum[]>(
         ABILITY,
         [context.getHandler(), context.getClass()],
       );

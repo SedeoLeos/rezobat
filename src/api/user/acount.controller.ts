@@ -23,6 +23,10 @@ import { AddJob, RemoveJob } from './dto/accountJob.dto';
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
+  /**
+   * WARNING !!!!
+   * Why do you allow the user to activate his own account ????
+   */
   @Abilitys(AbilitysEnum.ACTIVE_USER)
   @Post('activate')
   async create(@CurrentUser() user: User) {

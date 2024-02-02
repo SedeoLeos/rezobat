@@ -68,21 +68,15 @@ export class AuthController {
     @CurrentUser() user: User,
     @Body() payload: ResetPasswordDto,
   ) {
-    const _user = await this.authService.resetPassword(user, payload.password);
-    if (_user) {
-      return {
-        message: AccountCRUDMessage.PASSWORD_SUCCESS,
-        entity: _user,
-        status: 200,
-      };
-    }
-    throw new BadRequestException(AccountCRUDMessage.PASSWORD_ERROR);
+    return await this.authService.resetPassword(user, payload.password);
   }
+
   @Public()
   @Post('forget-password')
   otpPassword(@Body() playload: OTPPasswordDTO) {
     return this.authService.otpPassword(playload);
   }
+
   @Public()
   @Post('refresh-otp')
   optRefresh(@Body() playload: OTPRefreshDTO) {

@@ -9,10 +9,8 @@ import { MailService } from 'src/core/mail/mail.service';
 import * as argon from 'argon2';
 import { randomBytes } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import {
-  PaginationParamsSearch,
-  UserPaginationParamsSearch,
-} from 'src/core/pagination/page-option.dto';
+import { UserPaginationParamsSearch } from 'src/core/pagination/page-option.dto';
+
 import { ConfigService } from '@nestjs/config';
 
 const generatePassword = async (length: number): Promise<string> => {
@@ -213,11 +211,11 @@ export class UserService implements OnModuleInit {
     }
     return await this.model.findByIdAndUpdate(id, { ...updateFields }).exec();
   }
-  async updateSimple(id: string, updateUserDto: { [x: string]: any }) {
-    return await this.model
-      .findByIdAndUpdate({ _id: id }, updateUserDto)
-      .exec();
+
+  async updateSimple(id: string, updateUserDto: Partial<User>) {
+    return await this.model.findByIdAndUpdate(id, updateUserDto).exec();
   }
+
   async remove(id: string) {
     return await this.model.findByIdAndDelete(id).exec();
   }

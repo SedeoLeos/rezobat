@@ -6,6 +6,7 @@ export const CLIENT = 'CLIENT';
 export const ARTISANT = 'ARTISANT';
 export const ADMIN = 'ADMIN';
 
+
 export enum AbilitysEnum {
   DEFAULT_ABILITYS = 'AUTHENTIFICATED',
   VERIFIED_OTP = 'VERIFIED_OTP',
@@ -25,14 +26,14 @@ export interface UserI {
 }
 export class TokenI<T> {
   user: T;
-  abilitys: string[];
+  abilitys: AbilitysEnum[];
   device_name?: string;
 }
 export class TokenBuilder<T> {
   data: TokenI<T>;
   constructor() {
     this.data = new TokenI();
-    this.data.abilitys = [DEFAULT_ABILITYS];
+    this.data.abilitys = [AbilitysEnum.DEFAULT_ABILITYS];
   }
   setUser(user: T) {
     this.data.user = user;
@@ -42,17 +43,17 @@ export class TokenBuilder<T> {
     this.data.device_name = value;
     return this;
   }
-  addAbilitys(value: string) {
+  addAbilitys(value: AbilitysEnum) {
     if (!this.data.abilitys.includes(value)) this.data.abilitys.push(value);
     return this;
   }
-  removeAbilitys(value: string) {
+  removeAbilitys(value: AbilitysEnum) {
     const abilitys = this.data.abilitys.filter((ability) => ability != value);
     this.data.abilitys = abilitys;
     return this;
   }
   removeDefaultAbilitys() {
-    return this.removeAbilitys(DEFAULT_ABILITYS);
+    return this.removeAbilitys(AbilitysEnum.DEFAULT_ABILITYS);
   }
   builde() {
     this.data = JSON.parse(JSON.stringify(this.data));

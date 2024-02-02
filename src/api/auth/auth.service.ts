@@ -19,7 +19,7 @@ import { LoginDto } from './dto/login.dto.js';
 import { OTPPasswordDTO, OTPRefreshDTO, OTPVerifyDto } from './dto/otp.dto.js';
 import { JwtTokenService } from './jwt-token.service.js';
 import { AbilitysEnum, TokenBuilder, TokenI } from './tools/token.builder.js';
-import { ResetPasswordDTO } from './dto/reset-password.dto.js';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -115,10 +115,10 @@ export class AuthService {
     }
     const tokenbuilder = new TokenBuilder<User>();
     tokenbuilder.setUser(found_token.user!);
-    // payload.abilitys.forEach((name) => {
-    //   tokenbuilder.addAbilitys(name);
-    // });
-    // tokenbuilder.setUser(payload.user);
+    payload.abilitys.forEach((name) => {
+      tokenbuilder.addAbilitys(name);
+    });
+    tokenbuilder.setUser(payload.user);
     return await this.jwt_token_service.generateTokens(tokenbuilder, {
       tokenId,
       refresh: true,
@@ -157,12 +157,18 @@ export class AuthService {
       refresh: false,
     });
   }
+
+  /**
+   * Allow the user to request a one time password
+   * in order to reset his forgotten password.
+   */
   async otpPassword(playload: OTPPasswordDTO) {
     const found = await this.user_service.findBy(playload.email);
     if (!found) {
       return;
     }
     const otp = await this.opt_service.create(found, playload.type, false);
+    
     if (!otp) {
       return;
     }
@@ -174,32 +180,48 @@ export class AuthService {
       .removeDefaultAbilitys()
       .addAbilitys(AbilitysEnum.VERIFIED_OTP);
 
-    /**
-     * DANGER!!!!
-     * You shouldn't return the credentials here. A success response should be the secure way.
-     * e.g { message: 'ok' };
-     */
     return await this.jwt_token_service.generateTokens(tokenbuilder, {
       refresh: false,
     });
   }
-  async resetPassword(user: User, value: string) {
+
+  /**
+   * Reset the user's password after the 
+   * Abilitys UPDATE_PASSWORD was found by the guard system. 
+   */
+  async resetPassword(user_: User, value: string) {
     try {
       const password = await argon.hash(value);
-      console.log(user, password);
-      return await this.user_service.updateSimple(user.id, { password });
+      const user = await this.user_service.updateSimple(user_.id, { password });
+      return this.makeCompleted(user);
     } catch (e) {
-      console.log(e);
-      return null;
+      throw new UnauthorizedException();
     }
   }
+
+  /**
+   * Verify the otp and generates new jwt credentials.
+   * If the otp type is `is_first_auth` the new access token
+   * has the abilitys `ACTIVE_USER`.
+   * 
+   * If the otp type is `is_forget_password` the new access token
+   * has the abilitys `UPDATE_PASSWORD`.
+   */
   async otpVerify(dto: OTPVerifyDto) {
     const { email, type, otp } = dto;
+
     const data = await this.opt_service.findOne(email, otp, type);
     if (!data) {
-      return;
+      throw new UnauthorizedException('Otp incorrect.');
     }
+
     const { user } = data;
+    if (type === 'is_first_auth') {
+      await this.user_service.updateSimple(user._id, {
+        active: true,
+      });
+    }
+
     const tokenbuilder = new TokenBuilder<User>();
     const ability =
       type == 'is_first_auth'
@@ -211,34 +233,30 @@ export class AuthService {
     });
   }
 
-  /**
-   * Update the user's password if the OTP is valid.
-   */
-  async resetPassword({ email, type, otp, password }: ResetPasswordDTO) {
-    const checkOtp = await this.otpVerify({ email, type, otp });
-    if (!checkOtp) {
-      throw new UnauthorizedException();
-    }
-
-    const newPassword = await argon.hash(password);
-    const user = await this.user_service.updateSimple(`${checkOtp.user._id!}`, {
-      password: newPassword,
-    });
-
-    return this.makeCompleted(user);
-  }
   async makeCompleted(user: User) {
     const tokenbuilder = new TokenBuilder<User>();
     tokenbuilder.setUser(user);
+    /**
+     * TODO: check if all abilities are given
+     * to this user according to his current state.
+     */
+
     if (user.isAdmin) {
-      tokenbuilder.addAbilitys('ADMIN');
+      tokenbuilder.addAbilitys(AbilitysEnum.ADMIN);
     }
+
     if (user.role == 'Provider') {
-      tokenbuilder.addAbilitys('Provider');
+      tokenbuilder.addAbilitys(AbilitysEnum.ARTISANT);
     }
+
     if (user.role == 'Client') {
-      tokenbuilder.addAbilitys('Client');
+      tokenbuilder.addAbilitys(AbilitysEnum.CLIENT);
     }
+
+    if (user.active) {
+      tokenbuilder.addAbilitys(AbilitysEnum.ACTIVE_USER);
+    }
+
     return await this.jwt_token_service.generateTokens(tokenbuilder);
   }
 }

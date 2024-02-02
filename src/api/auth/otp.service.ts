@@ -30,6 +30,7 @@ export class OTPService {
     });
     // 4 digit OTP to comply with the figma design (specifications)
     const otp = randomInt(1000, 9999).toString();
+    console.log('OTP value', { otp });
     const value = await argon.hash(otp);
     const time_value = parseInt(this.confige_service.get('OTP_TIME_VALUE'));
 

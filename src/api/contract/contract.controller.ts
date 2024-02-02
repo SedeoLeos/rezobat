@@ -26,7 +26,7 @@ import { ContratCRUDMessage } from './message/contrat.message';
 import { Abilitys, Public } from 'src/core/decorators/public.decorator';
 import { AbilitysEnum } from '../auth/tools/token.builder';
 
-@Abilitys(AbilitysEnum.DEFAULT_ABILITYS)
+@Abilitys(AbilitysEnum.ACTIVE_USER)
 @Controller('contracts')
 export class ContractController {
   constructor(private readonly contractService: ContractService) {}

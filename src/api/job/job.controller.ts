@@ -12,7 +12,7 @@ import { PaginationParamsSearch } from 'src/core/pagination/page-option.dto';
 import { Abilitys } from 'src/core/decorators/public.decorator';
 import { AbilitysEnum } from '../auth/tools/token.builder';
 
-@Abilitys(AbilitysEnum.DEFAULT_ABILITYS)
+@Abilitys(AbilitysEnum.ACTIVE_USER)
 @Controller('jobs')
 export class JobController {
   constructor(private readonly jobService: JobService) {}
