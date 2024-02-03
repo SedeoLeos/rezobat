@@ -5,6 +5,7 @@ import { Job } from 'src/api/job/schema/job.schema';
 import { Media } from 'src/api/media/schemas/media.schema';
 import { User } from 'src/api/user/schemas/user.schema';
 import { SchemaProp } from 'src/core/constants';
+import { ContractStatus } from './contract-status.schema';
 export const statusContractArray = [
   'En attente de traitement',
   'En Cours',
@@ -38,6 +39,19 @@ export class Contract extends Document {
     default: statusContractArray[0],
   })
   status: StatusContract;
+
+  statuses?: ContractStatus[];
 }
 
 export const ContractSchema = SchemaFactory.createForClass(Contract);
+
+ContractSchema.virtual('statuses', {
+  ref: 'ContractStatus',
+  localField: '_id',
+  foreignField: 'contract',
+  justOne: false,
+});
+
+ContractSchema.set('toJSON', {
+  virtuals: true,
+});

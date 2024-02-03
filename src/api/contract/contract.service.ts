@@ -16,14 +16,20 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from '../user/schemas/user.schema';
 import { Media } from '../media/schemas/media.schema';
 import { ContractPaginationParams } from './dto/paginate-contract.dto';
+import {
+  ContractStatus,
+  ContractStatusDocument,
+} from './schemas/contract-status.schema';
 
-const POPULATE = ['client', 'provider', 'job', 'type'];
+const POPULATE = ['client', 'provider', 'job', 'type', 'statuses'];
 
 @Injectable()
 export class ContractService {
   constructor(
     @InjectModel(Contract.name)
     private model: Model<ContractDocument>,
+    @InjectModel(ContractStatus.name)
+    private contractStatusModel: Model<ContractStatusDocument>,
     private eventEmiter: EventEmitter2,
   ) {}
   async create(createContractDto: CreateContractDto, user: User) {
@@ -32,12 +38,17 @@ export class ContractService {
       job_id,
       type_id,
       files: filsMemory,
-      ...result
+      ...rest
     } = createContractDto;
-    const type = type_id ? { _id: type_id } : {};
-    const job = job_id ? { _id: job_id } : {};
-    const provider = provider_id ? { _id: provider_id } : {};
-    const client = user ? { _id: user.id } : {};
+
+    const data = {
+      client: user._id ?? user.id,
+      provider: provider_id,
+      job: job_id,
+      type: type_id,
+      ...rest,
+    } as any;
+
     if (filsMemory) {
       const medias = filsMemory.map((file) => ({
         file: file,
@@ -53,25 +64,16 @@ export class ContractService {
           files.push(filesMedia[0]);
         }
       }
-
-      return await (
-        await new this.model({
-          ...result,
-          files,
-          client,
-          provider,
-          job,
-          type,
-        }).populate(POPULATE)
-      ).save();
+      data.files = files;
     }
-    return await new this.model({
-      ...result,
-      provider,
-      client,
-      job,
-      type,
-    }).save();
+
+    const contract = await this.model.create({ ...data });
+    await this.contractStatusModel.create({
+      status: 'En Cours',
+      contract: contract._id,
+    });
+
+    return contract;
   }
 
   async findAll(
@@ -105,7 +107,10 @@ export class ContractService {
   }
 
   async findOne(id: string) {
-    return await this.model.findOne({ id }).exec();
+    return await this.model
+      .findOne({ _id: new Types.ObjectId(id) })
+      .populate(POPULATE)
+      .exec();
   }
 
   async update(user: User, id: string, updateContratDto: UpdateContractDto) {
@@ -136,24 +141,45 @@ export class ContractService {
     id: string,
     updateContratStatusDto: UpdateContractStatusDto,
   ) {
-    const contract = await this.model
+    const existingContract = await this.model
       .findOne({ _id: id })
       .populate(POPULATE)
       .exec();
-    if (!contract) {
+    if (!existingContract) {
       return;
     }
     const { status } = updateContratStatusDto;
-    if (status == contract.status) {
-      return contract;
+    /**
+     * TODO: I let this to you :)
+     * Enforce status verification rules.
+     * E.g: A cancelled contract cannot be 'En cours' again...
+     */
+    if (status == existingContract.status) {
+      return existingContract;
     }
-    return await (
-      await this.model
-        .findByIdAndUpdate(id, {
-          status,
-        })
-        .populate(POPULATE)
-    ).save();
+
+    const [contract] = await Promise.all([
+      this.model.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(id),
+        },
+        {
+          $set: {
+            status,
+          },
+        },
+        {
+          populate: POPULATE,
+          new: true,
+        },
+      ),
+      this.contractStatusModel.create({
+        status,
+        contract: existingContract._id,
+      }),
+    ]);
+
+    return contract;
   }
   async setFile(id: string, updateContratDto: AddFileContractDto) {
     const contract = await this.model
