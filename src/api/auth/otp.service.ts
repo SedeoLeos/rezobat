@@ -19,6 +19,7 @@ export class OTPService {
     private confige_service: ConfigService,
     @InjectModel(OTP.name) private model: Model<OTPDocument>,
   ) {}
+
   async create(
     user: User,
     type: 'is_first_auth' | 'is_forget_password',
@@ -26,18 +27,19 @@ export class OTPService {
   ) {
     const found = await this.model.findOne({
       email: user.email,
-      isRefresh,
+      [type]: true,
     });
-    // 4 digit OTP to comply with the figma design (specifications)
+
+    // 4 digits OTP to comply with the figma design (specifications)
     const otp = randomInt(1000, 9999).toString();
-    console.log('OTP value', { otp });
     const value = await argon.hash(otp);
+
     const time_value = parseInt(this.confige_service.get('OTP_TIME_VALUE'));
 
     const time_unit = this.confige_service.get(
       'OTP_TIME_UNIT',
     ) as dayjs.ManipulateType;
-    if (found && isRefresh) {
+    if (found) {
       const _otp = await this.model
         .updateOne(
           {
@@ -81,12 +83,10 @@ export class OTPService {
       return;
     }
     const isMatch = await argon.verify(otp_value.value, value);
-    console.log({ otp_value });
 
     if (!isMatch) {
       return;
     }
-    console.log(otp_value);
 
     const expire = dayjs(otp_value.expire);
     const diff = dayjs().diff(expire, 'minutes', true);

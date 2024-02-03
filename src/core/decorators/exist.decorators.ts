@@ -15,7 +15,7 @@ export class ExistConstraintMongoose implements ValidatorConstraintInterface {
   constructor(@InjectConnection() private readonly connection: Connection) {}
 
   async validate(value: any, args: ValidationArguments): Promise<boolean> {
-    const [model, property = 'id'] = args.constraints;
+    const [model, property = '_id'] = args.constraints;
     if (!value || !model) return false;
     const repository = this.connection.model(model);
 

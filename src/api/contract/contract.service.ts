@@ -58,7 +58,7 @@ export class ContractService {
         await new this.model({
           ...result,
           files,
-          client: user,
+          client,
           provider,
           job,
           type,
@@ -68,6 +68,7 @@ export class ContractService {
     return await new this.model({
       ...result,
       provider,
+      client,
       job,
       type,
     }).save();
@@ -80,7 +81,7 @@ export class ContractService {
     const { id, role } = user;
     const query: FilterQuery<Contract> =
       role == 'Client' || role == 'Provider'
-        ? { [role.toLowerCase()]: { id } }
+        ? { [role.toLowerCase()]: new Types.ObjectId(id) }
         : {};
     if (status) {
       query.status = status;

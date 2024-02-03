@@ -103,7 +103,6 @@ export class AuthService {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
     try {
-      console.log(found_token.refreshToken, refreshToken);
       isMatch = await argon.verify(
         found_token.refreshToken ?? '',
         refreshToken,
@@ -209,6 +208,7 @@ export class AuthService {
    */
   async otpVerify(dto: OTPVerifyDto) {
     const { email, type, otp } = dto;
+    console.log({ email, type, otp })
 
     const data = await this.opt_service.findOne(email, otp, type);
     if (!data) {
