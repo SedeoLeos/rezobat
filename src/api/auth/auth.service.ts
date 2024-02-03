@@ -61,10 +61,22 @@ export class AuthService {
     }
 
     if (!user.active) {
-      throw new HttpException(
-        "Votre compte n'est pas activé",
-        HttpStatus.UNAUTHORIZED,
-      );
+      // throw new HttpException(
+      //   "Votre compte n'est pas activé",
+      //   HttpStatus.UNAUTHORIZED,
+      // );
+      /**
+       * Let's give the user the possibility to activate his account with
+       * the otp previously sent by email.
+       */
+      const tokenbuilder = new TokenBuilder<User>();
+      tokenbuilder
+        .setUser(user)
+        .removeDefaultAbilitys()
+        .addAbilitys(AbilitysEnum.VERIFIED_OTP);
+      return await this.jwt_token_service.generateTokens(tokenbuilder, {
+        refresh: false,
+      });
     }
 
     return await this.makeCompleted(user);
@@ -208,25 +220,23 @@ export class AuthService {
    */
   async otpVerify(dto: OTPVerifyDto) {
     const { email, type, otp } = dto;
-    console.log({ email, type, otp })
 
     const data = await this.opt_service.findOne(email, otp, type);
     if (!data) {
       throw new UnauthorizedException('Otp incorrect.');
     }
 
-    const { user } = data;
+    let { user } = data;
     if (type === 'is_first_auth') {
-      await this.user_service.updateSimple(user._id, {
+      user = await this.user_service.updateSimple(user._id, {
         active: true,
       });
+
+      return await this.makeCompleted(user);
     }
 
     const tokenbuilder = new TokenBuilder<User>();
-    const ability =
-      type == 'is_first_auth'
-        ? AbilitysEnum.ACTIVE_USER
-        : AbilitysEnum.UPDATE_PASSWORD;
+    const ability = AbilitysEnum.UPDATE_PASSWORD;
     tokenbuilder.setUser(user).removeDefaultAbilitys().addAbilitys(ability);
     return await this.jwt_token_service.generateTokens(tokenbuilder, {
       refresh: false,

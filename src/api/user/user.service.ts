@@ -213,7 +213,12 @@ export class UserService implements OnModuleInit {
   }
 
   async updateSimple(id: string, updateUserDto: Partial<User>) {
-    return await this.model.findByIdAndUpdate(id, updateUserDto).exec();
+    return await this.model
+      .findByIdAndUpdate(id, updateUserDto, {
+        new: true,
+      })
+      .populate(POPULATE)
+      .exec();
   }
 
   async remove(id: string) {

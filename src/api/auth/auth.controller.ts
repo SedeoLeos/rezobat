@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Headers,
-  Post,
-  Request,
-} from '@nestjs/common';
+import { Body, Controller, Headers, Post, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -23,7 +16,6 @@ import {
 import { AbilitysEnum, TokenI } from './tools/token.builder.js';
 import { CurrentUser } from 'src/core/decorators/current-user.decorators';
 import { User } from '../user/schemas/user.schema';
-import { AccountCRUDMessage } from '../user/message/account.messga';
 import { extractTokenFromHeader } from './guard/jwt.guard';
 
 @Controller('auth')
