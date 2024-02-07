@@ -23,7 +23,6 @@ import { ContractTypeModule } from './api/contrat-type/contract-type.module';
       useFactory: async (config: ConfigService) => {
         return {
           uri: config.get('DATABASE_URL'),
-          dbName: 'rezobat',
         };
       },
     }),

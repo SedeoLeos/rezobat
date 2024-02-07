@@ -37,7 +37,11 @@ export class ContractTypeService {
   }
 
   async update(id: string, updateContractTypeDto: UpdateContractTypeDto) {
-    return await this.model.findByIdAndUpdate(id, { ...updateContractTypeDto });
+    return await this.model.findByIdAndUpdate(
+      id,
+      { ...updateContractTypeDto },
+      { new: true },
+    );
   }
 
   async remove(id: string) {

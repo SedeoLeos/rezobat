@@ -32,7 +32,9 @@ export class MediaService {
     const { old, file, folder } = updateMediaDto;
     await this.file_storage.removeImage(old.url);
     const data = await this.file_storage.saveFile(file, folder);
-    return await this.model.findByIdAndUpdate(old._id, data).exec();
+    return await this.model
+      .findByIdAndUpdate(old._id, data, { new: true })
+      .exec();
   }
 
   @OnEvent('Media.removed')

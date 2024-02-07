@@ -20,11 +20,7 @@ export class OTPService {
     @InjectModel(OTP.name) private model: Model<OTPDocument>,
   ) {}
 
-  async create(
-    user: User,
-    type: 'is_first_auth' | 'is_forget_password',
-    isRefresh: boolean = false,
-  ) {
+  async create(user: User, type: 'is_first_auth' | 'is_forget_password') {
     const found = await this.model.findOne({
       email: user.email,
       [type]: true,
@@ -55,6 +51,7 @@ export class OTPService {
             email: user.email,
             user,
           },
+          { new: true },
         )
         .exec();
 

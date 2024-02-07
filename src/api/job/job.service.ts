@@ -98,7 +98,7 @@ export class JobService {
           : categoryField;
     }
     return await this.model
-      .findByIdAndUpdate(id, { ...categoryField })
+      .findByIdAndUpdate(id, { ...categoryField }, { new: true })
       .populate('image')
       .exec();
   }

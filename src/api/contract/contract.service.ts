@@ -128,12 +128,16 @@ export class ContractService {
 
     return await (
       await this.model
-        .findByIdAndUpdate(id, {
-          ...result,
-          provider,
-          job,
-          type,
-        })
+        .findByIdAndUpdate(
+          id,
+          {
+            ...result,
+            provider,
+            job,
+            type,
+          },
+          { new: true },
+        )
         .populate(POPULATE)
     ).save();
   }
