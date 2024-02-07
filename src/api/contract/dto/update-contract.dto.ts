@@ -3,7 +3,7 @@ import {
   CreateContractAdminDto,
   CreateContractDto,
 } from './create-contract.dto.js';
-import { IsArray, IsIn, IsNotEmpty } from 'class-validator';
+import { IsArray, IsIn, IsNotEmpty, IsString } from 'class-validator';
 import {
   StatusContract,
   statusContractArray,
@@ -17,6 +17,7 @@ export class UpdateContractAdminDto extends PartialType(
 ) {}
 export class UpdateContractStatusDto {
   @IsNotEmpty()
+  @IsString()
   @IsIn(statusContractArray)
   status: StatusContract;
 }

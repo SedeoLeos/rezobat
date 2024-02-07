@@ -13,7 +13,6 @@ export function InjectPkTo(
   param: paramsMapings,
   context: 'query' | 'body' | 'params',
 ) {
-  console.log(param);
   return applyDecorators(
     UseInterceptors(new InjectUserInterceptor(param, context)),
     UsePipes(new StripRequestContextPipe(param.dtoField)),

@@ -22,7 +22,11 @@ export class AccountService {
   ) {}
   async activeCompte(user: User) {
     try {
-      return await this.model.findOneAndUpdate(user.id, { active: true });
+      return await this.model.findOneAndUpdate(
+        user.id,
+        { active: true },
+        { new: true },
+      );
     } catch (e) {
       return null;
     }
@@ -71,7 +75,9 @@ export class AccountService {
           folder: 'user/',
         })[0]) as Media;
       }
-      return await this.model.findByIdAndUpdate(id, { photo: newphoto }).exec();
+      return await this.model
+        .findByIdAndUpdate(id, { photo: newphoto }, { new: true })
+        .exec();
     } catch (e) {
       return null;
     }
@@ -89,7 +95,7 @@ export class AccountService {
             jobs.push(item as Job);
           }
         });
-      return this.model.findByIdAndUpdate(id, { jobs }).exec();
+      return this.model.findByIdAndUpdate(id, { jobs }, { new: true }).exec();
     } catch (e) {
       return null;
     }
@@ -120,7 +126,10 @@ export class AccountService {
   }
   async updateInfo(id: string, updateInfo: UpdateUserInfoDto) {
     try {
-      return this.model.findByIdAndUpdate(id, { ...updateInfo });
+      return this.model
+        .findOneAndUpdate({ _id: id }, { ...updateInfo }, { new: true })
+        .populate(['photo', 'jobs'])
+        .exec();
     } catch (e) {
       return null;
     }
@@ -129,8 +138,8 @@ export class AccountService {
   /**
    * WARNING!!!!!: DO some checks before.
    * And eventually also delete related data...
-   * 
-   * Or a better way would be to implement a soft delete. 
+   *
+   * Or a better way would be to implement a soft delete.
    */
   async remove(id: string) {
     try {

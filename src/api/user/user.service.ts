@@ -131,11 +131,9 @@ export class UserService implements OnModuleInit {
       filterQuery['jobs.name'] = { $in: jobs };
     }
 
-    // @ts-ignore
     // Array are often parsed as value1,value2,value3...
-    if (typeof jobs === 'string' && jobs.length) {
-      // @ts-ignore
-      filterQuery['jobs'] = { $in: jobs.split(',') };
+    if (typeof jobs == 'string' && (jobs as string).length) {
+      filterQuery['jobs'] = { $in: (jobs as string).split(',') };
     }
 
     if (filter) {
@@ -209,7 +207,9 @@ export class UserService implements OnModuleInit {
           ? { ...updateFields, photo: imagePayload[0] }
           : updateFields;
     }
-    return await this.model.findByIdAndUpdate(id, { ...updateFields }).exec();
+    return await this.model
+      .findByIdAndUpdate(id, { ...updateFields }, { new: true })
+      .exec();
   }
 
   async updateSimple(id: string, updateUserDto: Partial<User>) {

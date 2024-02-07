@@ -148,7 +148,7 @@ export class AuthService {
     if (!found) {
       return;
     }
-    const otp = await this.opt_service.create(found, type, true);
+    const otp = await this.opt_service.create(found, type);
     if (!otp) {
       return;
     }
@@ -178,7 +178,7 @@ export class AuthService {
     if (!found) {
       return;
     }
-    const otp = await this.opt_service.create(found, playload.type, false);
+    const otp = await this.opt_service.create(found, playload.type);
 
     if (!otp) {
       return;

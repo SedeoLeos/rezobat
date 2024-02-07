@@ -8,5 +8,5 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   id: string;
 }
 export class UpdateUserInfoDto extends PartialType(
-  OmitType(CreateUserDto, ['role', 'email']),
+  OmitType(CreateUserDto, ['role', 'email', 'jobs', 'photo']),
 ) {}

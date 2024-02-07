@@ -5,7 +5,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Job, JobDocument } from './schema/job.schema';
 import { FilterQuery, Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { isFile } from 'nestjs-form-data';
 
 @Injectable()
 export class JobService {
@@ -14,7 +13,6 @@ export class JobService {
     private eventEmitter: EventEmitter2,
   ) {}
   async create(createCategoryDto: CreateJobDto) {
-    console.log('ÄÄÄÄÄÄ', isFile(createCategoryDto.image));
     const { image: file, ...result } = createCategoryDto;
     let categoryField: Record<string, any> = { ...result };
     if (file) {
@@ -98,7 +96,7 @@ export class JobService {
           : categoryField;
     }
     return await this.model
-      .findByIdAndUpdate(id, { ...categoryField })
+      .findByIdAndUpdate(id, { ...categoryField }, { new: true })
       .populate('image')
       .exec();
   }
