@@ -191,7 +191,6 @@ export class ContractService {
     if (status == existingContract.status) {
       return existingContract;
     }
-
     const [contract] = await Promise.all([
       this.model.findOneAndUpdate(
         {
@@ -215,6 +214,21 @@ export class ContractService {
       }),
     ]);
     return contract;
+  }
+  async notReadCount(user: User) {
+    const { id, role } = user;
+    const query: FilterQuery<Contract> =
+      role == 'Client' || role == 'Provider'
+        ? { [role.toLowerCase()]: new Types.ObjectId(id) }
+        : {};
+
+    if (role == 'Client') {
+      query.isClientRead = false;
+    } else {
+      query.isArtisantRead = false;
+    }
+    const count = await this.model.countDocuments({ ...query }).exec();
+    return { count };
   }
   async setFile(id: string, updateContratDto: AddFileContractDto) {
     const contract = await this.model

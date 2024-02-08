@@ -65,6 +65,10 @@ export class ContractController {
   countInProgress(@CurrentUser() user: User) {
     return this.contractService.getInProgressCount(user);
   }
+  @Get('count-not-read')
+  countNotRead(@CurrentUser() user: User) {
+    return this.contractService.notReadCount(user);
+  }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
