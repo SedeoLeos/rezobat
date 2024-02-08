@@ -67,7 +67,7 @@ export class ContractService {
       data.files = files;
     }
 
-    const contract = await this.model.create({ ...data });
+    const contract = await this.model.create({ ...data, isClientRead: true });
     await this.contractStatusModel.create({
       status: 'En Cours',
       contract: contract._id,
@@ -78,7 +78,7 @@ export class ContractService {
 
   async findAll(
     user: User,
-    { skip = 0, limit, status }: ContractPaginationParams,
+    { skip = 0, limit, status, isNotRead = false }: ContractPaginationParams,
   ) {
     const { id, role } = user;
     const query: FilterQuery<Contract> =
@@ -87,6 +87,13 @@ export class ContractService {
         : {};
     if (status) {
       query.status = status;
+    }
+    if (isNotRead) {
+      if (role == 'Client') {
+        query.isClientRead = false;
+      } else {
+        query.isArtisantRead = false;
+      }
     }
     const count = await this.model.countDocuments({}).exec();
     const page_total = Math.floor((count - 1) / limit) + 1;
@@ -135,6 +142,29 @@ export class ContractService {
             provider,
             job,
             type,
+            isClientRead: true,
+          },
+          { new: true },
+        )
+        .populate(POPULATE)
+    ).save();
+  }
+  async readContract(user: User, id: string) {
+    const name = user.role.toLowerCase();
+    const contract = await this.model
+      .findOne({ _id: id, [name]: { _id: user.id } })
+      .exec();
+    if (!contract) {
+      return;
+    }
+    const data =
+      user.role == 'Client' ? { isClientRead: true } : { isArtisantRead: true };
+    return await (
+      await this.model
+        .findByIdAndUpdate(
+          id,
+          {
+            ...data,
           },
           { new: true },
         )
@@ -170,6 +200,8 @@ export class ContractService {
         {
           $set: {
             status,
+            isClientRead: false,
+            isArtisantRead: true,
           },
         },
         {
@@ -182,7 +214,6 @@ export class ContractService {
         contract: existingContract._id,
       }),
     ]);
-
     return contract;
   }
   async setFile(id: string, updateContratDto: AddFileContractDto) {

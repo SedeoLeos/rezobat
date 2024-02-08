@@ -3,7 +3,7 @@ import {
   StatusContract,
   statusContractArray,
 } from '../schemas/contract.schema';
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ContractPaginationParams extends PaginationParams {
@@ -11,4 +11,8 @@ export class ContractPaginationParams extends PaginationParams {
   @Type(() => String)
   @IsEnum(statusContractArray)
   status?: StatusContract;
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  isNotRead?: boolean = false;
 }

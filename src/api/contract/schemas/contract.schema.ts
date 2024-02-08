@@ -39,6 +39,10 @@ export class Contract extends Document {
     default: statusContractArray[0],
   })
   status: StatusContract;
+  @Prop({ default: false })
+  isClientRead: boolean;
+  @Prop({ default: false })
+  isArtisantRead: boolean;
 
   statuses?: ContractStatus[];
 }

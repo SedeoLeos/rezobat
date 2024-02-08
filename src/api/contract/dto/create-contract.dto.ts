@@ -35,11 +35,11 @@ export class CreateContractDto {
   })
   type_id: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @IsMongoId()
   @IsExistMongoose('User', '_id')
-  provider_id: string;
+  provider_id?: string;
 
   @IsFiles()
   @IsOptional()

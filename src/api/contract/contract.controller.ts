@@ -117,6 +117,18 @@ export class ContractController {
     }
     throw new NotFoundException(ContratCRUDMessage.STATUS_ERROR);
   }
+  @Put(':id/read-contract')
+  async readContract(@Param('id') id: string, @CurrentUser() user: User) {
+    const contrat = await this.contractService.readContract(user, id);
+    if (contrat) {
+      return {
+        message: ContratCRUDMessage.UPDATE_READ_SUCCESS,
+        entity: contrat,
+        status: 201,
+      };
+    }
+    throw new NotFoundException(ContratCRUDMessage.UPDATE_READ_ERROR);
+  }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
