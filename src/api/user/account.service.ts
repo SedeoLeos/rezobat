@@ -76,6 +76,7 @@ export class AccountService {
       }
       return await this.model
         .findByIdAndUpdate(id, { photo: newphoto }, { new: true })
+        .populate('photo')
         .exec();
     } catch (e) {
       return null;

@@ -17,6 +17,7 @@ import { AccountService } from './account.service';
 import { UpdateUserInfoDto } from './dto/update-user.dto';
 import { AccountCRUDMessage } from './message/account.messga';
 import { AddJob, RemoveJob } from './dto/accountJob.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Abilitys(AbilitysEnum.DEFAULT_ABILITYS)
 @Controller('account')
@@ -80,6 +81,7 @@ export class AccountController {
     throw new BadRequestException(AccountCRUDMessage.UPDATE_ERROR);
   }
   @Post('upload-image')
+  @FormDataRequest()
   async upload(@CurrentUser() user: User, @Body() payload: UploadUserimageDto) {
     const _user = await this.accountService.upload(user.id, payload);
     if (_user) {
