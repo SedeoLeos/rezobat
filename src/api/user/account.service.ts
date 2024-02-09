@@ -42,7 +42,6 @@ export class AccountService {
       }
       return;
     } catch (e) {
-      console.log(e);
       return null;
     }
   }
@@ -61,18 +60,27 @@ export class AccountService {
         throw new BadRequestException();
       }
       let newphoto: Media;
+
       if (found.photo) {
         const { photo: old } = found;
-        newphoto = (await this.eventEmitter.emitAsync('Media.updated', {
-          old,
-          file: photo,
-          folder: 'user/',
-        })[0]) as Media;
+        const newphotoList = await this.eventEmitter.emitAsync(
+          'Media.updated',
+          {
+            old,
+            file: photo,
+            folder: 'user/',
+          },
+        );
+        newphoto = newphotoList[0] as Media;
       } else {
-        newphoto = (await this.eventEmitter.emitAsync('Media.created', {
-          file: photo,
-          folder: 'user/',
-        })[0]) as Media;
+        const newphotoList = await this.eventEmitter.emitAsync(
+          'Media.created',
+          {
+            file: photo,
+            folder: 'user/',
+          },
+        );
+        newphoto = newphotoList[0] as Media;
       }
       return await this.model
         .findByIdAndUpdate(id, { photo: newphoto }, { new: true })
