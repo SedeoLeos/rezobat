@@ -8,7 +8,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as argon from 'argon2';
 import { UploadUserimageDto } from './dto/upload-user.dto';
-import { isFile } from 'nestjs-form-data';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Media } from '../media/schemas/media.schema';
 import { UpdateUserInfoDto } from './dto/update-user.dto';
@@ -51,7 +50,7 @@ export class AccountService {
   async upload(id: string, updateUserDto: UploadUserimageDto) {
     try {
       const { photo } = updateUserDto;
-      if (!photo || !isFile(photo)) {
+      if (!photo) {
         throw new UnsupportedMediaTypeException();
       }
       const found = await this.model
