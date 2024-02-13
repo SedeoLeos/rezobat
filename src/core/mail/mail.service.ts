@@ -3,6 +3,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { SentMessageInfo } from 'nodemailer';
 import { User } from 'src/api/user/schemas/user.schema.js';
 import { ConfigService } from '@nestjs/config';
+import { Contract } from 'src/api/contract/schemas/contract.schema';
 @Injectable()
 export class MailService {
   LOGO_APP = this.config.get('MAIL_LOGO');
@@ -19,7 +20,7 @@ export class MailService {
           name: this.config.get('MAIL_APP'),
           address: this.config.get('MAIL_CLIENT'),
         },
-        to: ['gedeon.matsoula@nanocreatives.com', user.email],
+        to: [user.email],
         subject: 'Code de Verification',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -82,7 +83,7 @@ export class MailService {
           name: this.config.get('MAIL_APP'),
           address: this.config.get('MAIL_CLIENT'),
         },
-        to: ['gedeon.matsoula@nanocreatives.com', user.email],
+        to: [user.email],
         subject: 'Informations de connexion',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -141,7 +142,7 @@ export class MailService {
           name: this.config.get('MAIL_APP'),
           address: this.config.get('MAIL_CLIENT'),
         },
-        to: ['gedeon.matsoula@nanocreatives.com', user.email],
+        to: [user.email],
         subject: 'Mot de passe oblié',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -171,6 +172,69 @@ export class MailService {
                               <h1 style="margin: 1rem 0">Code de réinitialisation du mot de passe :</h1>
                               <p style="padding-bottom: 16px"><strong style="font-size: 130%">${value}</strong></p>
                               <p style="padding-bottom: 16px">Si vous n'avez pas demandé la réinitialisation du mot de passe, veuillez ignorer cet e-mail.</p>
+                            </div>
+                          </div>
+                          <div style="padding-top: 20px; color: rgb(153, 149, 85); text-align: center;">
+                            <p style="padding-bottom: 16px">Made with ♥ in Slaega</p>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </body>
+        
+        </html>`,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  async statusContract(
+    { recever, sender }: Record<string, string>,
+    newStatus: string,
+    contract: Contract,
+  ): Promise<SentMessageInfo> {
+    try {
+      return await this.mailerService.sendMail({
+        from: {
+          name: this.config.get('MAIL_APP'),
+          address: this.config.get('MAIL_CLIENT'),
+        },
+        to: [this.config.get('SUPPORT_MAIL'), recever],
+        subject: 'Notification de Changement de Statut',
+        html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Verify your login</title>
+          <!--[if mso]><style type="text/css">body, table, td, a { font-family: Arial, Helvetica, sans-serif !important; }</style><![endif]-->
+        </head>
+        
+        <body style="font-family: Helvetica, Arial, sans-serif; margin: 0px; padding: 0px; background-color: #ffffff;">
+          <table role="presentation"
+            style="width: 100%; border-collapse: collapse; border: 0px; border-spacing: 0px; font-family: Arial, Helvetica, sans-serif; background-color: rgb(239, 239, 239);">
+            <tbody>
+              <tr>
+                <td align="center" style="padding: 1rem 2rem; vertical-align: top; width: 100%;">
+                  <table role="presentation" style="max-width: 600px; border-collapse: collapse; border: 0px; border-spacing: 0px; text-align: left;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 40px 0px 0px;">
+                          <div style="text-align: left;">
+                            <div style="padding-bottom: 20px;"><img src="${this.LOGO_APP}" alt="Company" style="width: 80px;"></div>
+                          </div>
+                          <div style="padding: 20px; background-color: rgb(255, 255, 255);">
+                            <div style="color: rgb(0, 0, 0); text-align: center;">
+                              <h1 style="margin: 1rem 0">Nous vous notifions par la présente d'un changement de statut survenu sur votre recommandation.</h1>
+                              <p style="padding-bottom: 16px">la recommendation ${contract.id} passe du status ${contract.status} á ${newStatus} ,</p>
+                              <p style="padding-bottom: 16px">Action declanché par ${sender}.</p>
+                              <p style="padding-bottom: 16px">Merci de faire confiance á rezobat.</p>
                             </div>
                           </div>
                           <div style="padding-top: 20px; color: rgb(153, 149, 85); text-align: center;">

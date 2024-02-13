@@ -20,6 +20,7 @@ import {
   ContractStatus,
   ContractStatusDocument,
 } from './schemas/contract-status.schema';
+import { MailService } from 'src/core/mail/mail.service';
 
 const POPULATE = ['client', 'provider', 'job', 'type', 'statuses'];
 
@@ -31,6 +32,7 @@ export class ContractService {
     @InjectModel(ContractStatus.name)
     private contractStatusModel: Model<ContractStatusDocument>,
     private eventEmiter: EventEmitter2,
+    private mailService: MailService,
   ) {}
   async create(createContractDto: CreateContractDto, user: User) {
     const {
@@ -174,6 +176,7 @@ export class ContractService {
   async statusUpdate(
     id: string,
     updateContratStatusDto: UpdateContractStatusDto,
+    user: User,
   ) {
     const existingContract = await this.model
       .findOne({ _id: id })
@@ -212,6 +215,21 @@ export class ContractService {
         status,
         contract: existingContract._id,
       }),
+      this.mailService.statusContract(
+        {
+          recever:
+            user.role == 'Client'
+              ? existingContract.provider.email
+              : existingContract.client.email,
+          sender:
+            user.role == 'Client'
+              ? existingContract.client.last_name
+              : existingContract.provider.last_name,
+        },
+
+        status,
+        existingContract.toJSON(),
+      ),
     ]);
     return contract;
   }

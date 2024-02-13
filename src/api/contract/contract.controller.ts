@@ -107,10 +107,12 @@ export class ContractController {
   async statusUpdate(
     @Param('id') id: string,
     @Body() updateContractStatusDto: UpdateContractStatusDto,
+    @CurrentUser() user: User,
   ) {
     const contrat = await this.contractService.statusUpdate(
       id,
       updateContractStatusDto,
+      user,
     );
     if (contrat) {
       return {
